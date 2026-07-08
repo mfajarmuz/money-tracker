@@ -72,7 +72,9 @@
                         </div>
                         
                         <div class="transaction-list" id="historyTableBody">
-                            <!-- Transactions injected via JS will be formatted via CSS to look like list items -->
+                            <div id="loadingState" class="loading-state">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i> Memuat data...
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -166,15 +168,16 @@
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
             </div>
-            <div class="nav-item" onclick="openTransactionModal()">
-                <i class="fa-solid fa-plus"></i>
-                <span>Tambah</span>
+            
+            <div class="nav-item" data-target="laporan">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Report</span>
             </div>
             
-            <!-- FAB Container (Report) -->
-            <div class="fab-container nav-item nav-link" data-target="laporan">
-                <button class="fab-btn" aria-label="Laporan Keuangan">
-                    <i class="fa-solid fa-chart-pie"></i>
+            <!-- FAB Raksasa Melayang -->
+            <div class="fab-container">
+                <button class="fab-btn" onclick="openTransactionModal()" aria-label="Tambah Transaksi">
+                    <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
 

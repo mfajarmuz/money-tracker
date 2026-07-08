@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const supabaseUrl = 'https://rcclzilnplzpixsbtabx.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjY2x6aWxucGx6cGl4c2J0YWJ4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzQ2MjAzOCwiZXhwIjoyMDk5MDM4MDM4fQ.pc_QJ6hBvL95t3fZQ2Cg7yAQA5LtLqst0EFAX_BNoZU';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    window.supabaseClient = supabase;
+    window.fetchAndRenderGlobal = fetchAndRender;(supabaseUrl, supabaseKey);
 
     // Navigation (SPA Logic)
     const navLinks = document.querySelectorAll('.nav-link');
@@ -513,3 +515,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchAndRender();
 });
 
+
+
+    // OVERRIDE SAVE FUNCTION SECARA GLOBAL
+    window.saveTransaction = async function(e) {
+        if(e) e.preventDefault();
+        
+        const saveBtn = document.getElementById('saveTransactionBtn');
+        saveBtn.innerText = "Menyimpan...";
+        
+        const descInput = document.getElementById('deskripsi');
+        const nomInput = document.getElementById('nominal');
+        const tipeInput = document.getElementById('tipe'); 
+        
+        const activeChip = document.querySelector('.category-chip.active');
+        let kat = "Lainnya"; 
+        if (activeChip) {
+            kat = activeChip.textContent;
+        } else {
+            const hiddenKat = document.getElementById('kategori');
+            if (hiddenKat && hiddenKat.value) kat = hiddenKat.value;
+        }
+        
+        const desc = descInput.value.trim() || 'Tanpa Keterangan';
+        let rawNom = nomInput.value.replace(/\D/g, ''); 
+        const nom = Number(rawNom);
+        const tipe = tipeInput ? tipeInput.value : 'pengeluaran';
+        
+        if (isNaN(nom) || nom <= 0) {
+            alert("Nominal tidak valid!");
+            saveBtn.innerText = "Simpan Transaksi";
+            return;
+        }
+        
+        // Simpan ke Supabase Asli
+        const { error } = await window.supabaseClient.from('transactions').insert([{
+            deskripsi: desc,
+            nominal: nom,
+            tipe: tipe,
+            kategori: kat
+        }]);
+
+        if (error) {
+            alert('Gagal menyimpan: ' + error.message);
+        } else {
+            // Reset dan Tutup Modal
+            descInput.value = "";
+            window.numpadValue = "0";
+            if(typeof window.updateAmountDisplay === 'function') window.updateAmountDisplay();
+            if(typeof closeTransactionModal === 'function') closeTransactionModal();
+            // Refresh data
+            await window.fetchAndRenderGlobal();
+        }
+        saveBtn.innerText = "Simpan Transaksi";
+    };

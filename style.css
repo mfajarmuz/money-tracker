@@ -369,24 +369,7 @@ body {
 /* ------------------------
    BOTTOM NAV BAR
 ------------------------ */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 480px;
-    height: 70px;
-    background-color: var(--clr-dark-green);
-    border-top-left-radius: 24px;
-    border-top-right-radius: 24px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 0 16px;
-    z-index: 100;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-}
+
 
 .nav-item {
     display: flex;
@@ -463,17 +446,29 @@ body {
 }
 
 .modal-content.bottom-sheet {
-    background: var(--clr-white);
+    position: absolute;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    border-top-left-radius: 32px;
-    border-top-right-radius: 32px;
-    padding: 24px;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
     transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-overlay.active .modal-content.bottom-sheet {
-    transform: translateY(0);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    transform: translateY(100%);
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-header {
@@ -975,10 +970,16 @@ body {
 
 /* Fixes for Numpad Modal UI */
 .modal-content.bottom-sheet {
-    max-height: 90vh;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    transform: translateY(100%);
     display: flex;
     flex-direction: column;
-    padding: 20px 20px 0 20px !important;
 }
 
 #transactionForm.modern-form {
@@ -1034,10 +1035,16 @@ body {
 /* === MOBILE BROWSER FIXES FOR MODAL === */
 /* Prevent browser UI from hiding bottom elements */
 .modal-content.bottom-sheet {
-    max-height: 95vh; height: 95vh; /* Sedikit diturunkan agar lebih aman di HP */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    transform: translateY(100%);
     display: flex;
     flex-direction: column;
-    padding: 16px 16px 0 16px !important;
 }
 
 #transactionForm.modern-form {
@@ -1051,9 +1058,14 @@ body {
 
 /* Numpad Section Container */
 .numpad-container {
-    margin-top: 10px;
-    padding-bottom: 20px;
-    flex-shrink: 0; /* Jangan menyusut */
+    background-color: var(--bg-color);
+    padding: 10px 10px 20px 10px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border-color);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: auto;
 }
 
 /* Numpad Buttons */
@@ -1092,7 +1104,16 @@ body {
 }
 
 .modal-content.bottom-sheet {
-    padding-bottom: 20px !important;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    transform: translateY(100%);
+    display: flex;
+    flex-direction: column;
 }
 
 .amount-group {
@@ -1106,7 +1127,13 @@ body {
 }
 
 .numpad-container {
-    flex-shrink: 0;
+    background-color: var(--bg-color);
+    padding: 10px 10px 20px 10px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border-color);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
     margin-top: auto;
 }
 
@@ -1129,7 +1156,13 @@ body {
 .scrollable-middle {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 10px;
+    padding: 15px;
+    padding-bottom: 20px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollable-middle::-webkit-scrollbar {
+    display: none;
 }
 
 .numpad-grid {
@@ -1206,4 +1239,127 @@ body {
     padding: 20px;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
+}
+
+
+/* --- BOTTOM NAVIGATION & FAB --- */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--card-bg);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0 16px 0;
+    border-top: 1px solid var(--border-color);
+    z-index: 900;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    text-decoration: none;
+    cursor: pointer;
+    flex: 1;
+    transition: color 0.2s ease;
+}
+
+.bottom-nav .nav-item i {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.bottom-nav .nav-item.active {
+    color: var(--primary-color);
+}
+
+.fab-wrapper {
+    position: relative;
+    top: -24px;
+    flex: 0 0 60px;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.fab-main-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    font-size: 24px;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.fab-main-btn:active {
+    transform: scale(0.95);
+}
+
+
+.loading-state {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+/* V2 FULL SCREEN MODAL FIX */
+.modal-content.bottom-sheet.numpad-ui {
+    max-height: 100vh !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    padding-top: 40px !important; /* Jarak atas layar HP */
+}
+
+/* FAB Adjustments */
+.fab-container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -25px; /* Melayang di atas navbar */
+    z-index: 100;
+}
+.fab-btn {
+    background: var(--clr-light-green);
+    border: 4px solid var(--clr-white);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    cursor: pointer;
+}
+.bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: relative;
+}
+.bottom-nav .nav-item {
+    flex: unset;
+    min-width: 60px;
+}
+.bottom-nav .nav-item:nth-child(2) {
+    margin-right: 40px; /* Space for FAB */
 }
