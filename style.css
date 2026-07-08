@@ -1,0 +1,1113 @@
+/* MONEY TRACKER - BLUE WALLET THEME */
+
+:root {
+    /* Color Palette */
+    --clr-dark-green: #0F172A;
+    --clr-green: #1E293B;
+    --clr-light-green: #3B82F6;
+    --clr-neon-green: #60A5FA;
+    --clr-white: #FFFFFF;
+    --clr-bg: #F5F7FA;
+    --clr-text-main: #1A1A1A;
+    --clr-text-muted: #6B7280;
+    --clr-border: #E5E7EB;
+    
+    --clr-expense: #EF4444;
+    --clr-income: #10B981;
+    
+    /* Layout & Shadows */
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 8px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 16px 32px rgba(15, 23, 42, 0.15);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--clr-dark-green); /* App container background shows through at top/bottom safe areas */
+    color: var(--clr-text-main);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.app-container {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background-color: var(--clr-bg);
+    position: relative;
+    overflow-x: hidden;
+    padding-bottom: 80px; /* Space for bottom nav */
+}
+
+/* ------------------------
+   VIEWS & LAYOUT
+------------------------ */
+.view {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.view.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------------
+   TOP SECTION (GREEN)
+------------------------ */
+.top-section {
+    background-color: var(--clr-dark-green);
+    color: var(--clr-white);
+    padding: 24px 24px 40px;
+    border-bottom-left-radius: 32px;
+    border-bottom-right-radius: 32px;
+    position: relative;
+    z-index: 2;
+}
+
+.top-section.minimal {
+    padding: 24px 24px 32px;
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 44px;
+    height: 44px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--clr-light-green);
+}
+
+.greeting p {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 2px;
+}
+
+.greeting h2 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.icon-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: var(--clr-white);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.balance-container {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.balance-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 8px;
+}
+
+.balance-amount {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.primary-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.action-btn {
+    flex: 1;
+    background-color: var(--clr-light-green);
+    color: var(--clr-white);
+    border: none;
+    padding: 14px 0;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(35, 193, 97, 0.3);
+    transition: transform 0.1s;
+}
+
+.action-btn:active {
+    transform: scale(0.96);
+}
+
+/* ------------------------
+   BOTTOM SECTION (WHITE)
+------------------------ */
+.bottom-section {
+    padding: 0 24px;
+    margin-top: -24px;
+    position: relative;
+    z-index: 3;
+}
+
+.bottom-section.full {
+    margin-top: -16px;
+}
+
+/* Quick Actions */
+.quick-actions {
+    background: var(--clr-white);
+    border-radius: var(--radius-lg);
+    padding: 24px 16px;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 32px;
+}
+
+.quick-action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    width: 25%;
+}
+
+.qa-icon {
+    width: 48px;
+    height: 48px;
+    background-color: rgba(35, 193, 97, 0.1);
+    color: var(--clr-light-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.quick-action-item span {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--clr-text-main);
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.view-all {
+    font-size: 14px;
+    color: var(--clr-light-green);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Transaction List (replaces table) */
+.transaction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+/* App.js dynamically generates TR/TD, we style them to look like list items */
+#historyTableBody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#historyTableBody tr {
+    display: flex;
+    align-items: center;
+    background: var(--clr-white);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    flex-wrap: wrap;
+}
+
+/* Keterangan (Col 1) & Kategori (Col 2) - Stack them */
+#historyTableBody td:nth-child(1) {
+    font-weight: 600;
+    font-size: 15px;
+    order: 2;
+    flex: 1;
+    margin-bottom: 20px; /* Space for absolute positioned category */
+}
+
+#historyTableBody td:nth-child(2) {
+    position: absolute;
+    bottom: 16px;
+    left: 64px; /* Space for icon */
+    font-size: 12px;
+    color: var(--clr-text-muted);
+    order: 3;
+}
+
+/* Nominal (Col 3) */
+#historyTableBody td:nth-child(3) {
+    order: 4;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: right;
+}
+
+/* Tipe (Col 4) */
+#historyTableBody td:nth-child(4) {
+    display: none; /* Hide the text, we'll use colors on nominal */
+}
+
+/* Aksi (Col 5) - Delete button */
+#historyTableBody td:nth-child(5) {
+    order: 5;
+    margin-left: 12px;
+}
+
+#historyTableBody td:nth-child(5) button {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--clr-expense);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Pseudo-element for Transaction Icon */
+#historyTableBody tr::before {
+    content: '\f155'; /* fa-dollar-sign */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    order: 1;
+    font-size: 16px;
+}
+
+/* Income vs Expense styling inside dynamically created TRs */
+#historyTableBody tr[data-tipe="pemasukan"]::before {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--clr-income);
+    content: '\f063'; /* fa-arrow-down */
+}
+#historyTableBody tr[data-tipe="pemasukan"] td:nth-child(3) {
+    color: var(--clr-income);
+}
+#historyTableBody tr[data-tipe="pemasukan"] td:nth-child(3)::before {
+    content: '+';
+}
+
+#historyTableBody tr[data-tipe="pengeluaran"]::before {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--clr-expense);
+    content: '\f062'; /* fa-arrow-up */
+}
+#historyTableBody tr[data-tipe="pengeluaran"] td:nth-child(3) {
+    color: var(--clr-text-main);
+}
+#historyTableBody tr[data-tipe="pengeluaran"] td:nth-child(3)::before {
+    content: '-';
+}
+
+
+/* ------------------------
+   BOTTOM NAV BAR
+------------------------ */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    height: 70px;
+    background-color: var(--clr-dark-green);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 16px;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    text-decoration: none;
+    width: 60px;
+}
+
+.nav-item i {
+    font-size: 20px;
+}
+
+.nav-item span {
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.nav-item.active {
+    color: var(--clr-light-green);
+}
+
+.fab-container {
+    position: relative;
+    top: -24px;
+}
+
+.fab-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--clr-light-green);
+    color: var(--clr-white);
+    border: 4px solid var(--clr-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.1s;
+}
+
+.fab-btn:active {
+    transform: scale(0.92);
+}
+
+/* ------------------------
+   MODAL (BottomSheet)
+------------------------ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: flex-end;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content.bottom-sheet {
+    background: var(--clr-white);
+    width: 100%;
+    border-top-left-radius: 32px;
+    border-top-right-radius: 32px;
+    padding: 24px;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+.modal-overlay.active .modal-content.bottom-sheet {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--clr-text-muted);
+    cursor: pointer;
+}
+
+/* Forms */
+.modern-form .form-group {
+    margin-bottom: 20px;
+}
+
+/* ------------------------
+   NUMPAD UI (Transaction Modal)
+------------------------ */
+.numpad-ui {
+    padding: 0 !important;
+    background: #F8F9FA !important;
+    display: flex;
+    flex-direction: column;
+}
+
+.numpad-header {
+    background: #F8F9FA;
+    padding: 20px 24px;
+    position: relative;
+    text-align: center;
+    border-bottom: 1px solid var(--clr-border);
+}
+
+.numpad-header .close-modal {
+    position: absolute;
+    right: 24px;
+    top: 20px;
+}
+
+.type-selector-numpad {
+    display: flex;
+    gap: 8px;
+    background: #E5E7EB;
+    border-radius: var(--radius-lg);
+    padding: 4px;
+    margin: 0 auto 20px auto;
+    width: fit-content;
+}
+
+.nominal-label {
+    font-size: 14px;
+    color: var(--clr-text-muted);
+    margin-bottom: 4px;
+}
+
+.amount-display {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.text-red { color: var(--clr-expense) !important; }
+.text-green { color: var(--clr-income) !important; }
+
+.numpad-form {
+    background: var(--clr-white);
+    padding: 24px;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    flex: 1;
+}
+
+/* Chips for Category */
+.category-chips-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.category-chips-container::-webkit-scrollbar {
+    display: none;
+}
+
+.chip-btn {
+    flex: 0 0 auto;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--clr-border);
+    background: var(--clr-white);
+    color: var(--clr-text-main);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.chip-btn.active {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--clr-light-green);
+    border: 2px solid var(--clr-light-green);
+    font-weight: 600;
+}
+
+/* Numpad Input Keterangan */
+.form-group-numpad {
+    margin-bottom: 24px;
+}
+
+.input-with-icon {
+    display: flex;
+    align-items: center;
+    background: #F3F4F6;
+    border-radius: 100px;
+    padding: 12px 20px;
+}
+
+.input-with-icon i {
+    color: var(--clr-text-muted);
+    margin-right: 12px;
+    font-size: 16px;
+}
+
+.input-with-icon input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 15px;
+    color: var(--clr-text-main);
+}
+
+/* Custom Numpad Grid */
+.numpad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.numpad-btn {
+    background: #F3F4F6;
+    border: none;
+    border-radius: 16px;
+    padding: 20px 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--clr-text-main);
+    cursor: pointer;
+}
+
+.numpad-btn:active {
+    background: #E5E7EB;
+}
+
+.numpad-del {
+    color: var(--clr-text-muted);
+}
+
+.btn-save-numpad.disabled {
+    background: #D1D5DB;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.modern-form label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--clr-text-muted);
+    margin-bottom: 8px;
+}
+
+.modern-form input[type="text"],
+.modern-form select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    color: var(--clr-text-main);
+    background: #F9FAFB;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+}
+
+.modern-form input:focus,
+.modern-form select:focus {
+    border-color: var(--clr-light-green);
+    background: var(--clr-white);
+}
+
+.amount-group {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid var(--clr-border);
+    padding-bottom: 8px;
+    margin-bottom: 32px !important;
+}
+
+.amount-group:focus-within {
+    border-bottom-color: var(--clr-light-green);
+}
+
+.amount-group .currency {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--clr-text-main);
+    margin-right: 8px;
+}
+
+.amount-group .huge-input {
+    border: none !important;
+    background: transparent !important;
+    font-size: 40px !important;
+    font-weight: 700 !important;
+    padding: 0 !important;
+    color: var(--clr-text-main) !important;
+}
+
+.select-wrapper {
+    position: relative;
+}
+
+.select-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--clr-text-muted);
+    pointer-events: none;
+}
+
+.type-selector {
+    display: flex;
+    background: #F3F4F6;
+    border-radius: 100px;
+    padding: 4px;
+    margin-bottom: 32px;
+}
+
+.type-radio {
+    flex: 1;
+    position: relative;
+    cursor: pointer;
+}
+
+.type-radio input {
+    position: absolute;
+    opacity: 0;
+}
+
+.type-btn {
+    display: block;
+    text-align: center;
+    padding: 12px 0;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--clr-text-muted);
+    transition: all 0.2s;
+}
+
+.type-radio input:checked + .pengeluaran-btn {
+    background: var(--clr-white);
+    color: var(--clr-expense);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.type-radio input:checked + .pemasukan-btn {
+    background: var(--clr-white);
+    color: var(--clr-income);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+    background: var(--clr-light-green);
+    color: var(--clr-white);
+    border: none;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.w-100 { width: 100%; }
+.mt-4 { margin-top: 24px; }
+
+
+/* ------------------------
+   LAPORAN & PENGATURAN (Other Views)
+------------------------ */
+.page-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.summary-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.summary-card {
+    background: var(--clr-white);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.sc-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.text-green .sc-icon { background: rgba(16, 185, 129, 0.1); color: var(--clr-income); }
+.text-red .sc-icon { background: rgba(239, 68, 68, 0.1); color: var(--clr-expense); }
+.text-blue .sc-icon { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+
+.sc-details span {
+    font-size: 13px;
+    color: var(--clr-text-muted);
+}
+
+.sc-details h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.chart-section {
+    background: var(--clr-white);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+}
+
+.chart-section h3 {
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.chart-container {
+    position: relative;
+    height: 250px;
+    width: 100%;
+}
+
+.settings-section {
+    background: var(--clr-white);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+}
+
+.settings-section h3 {
+    font-size: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--clr-border);
+}
+
+/* Category List (replaces table) */
+#categoryTableBody {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#categoryTableBody tr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--clr-border);
+}
+
+#categoryTableBody tr:last-child {
+    border-bottom: none;
+}
+
+#categoryTableBody td:nth-child(1) {
+    font-weight: 500;
+}
+
+#categoryTableBody td:nth-child(2) button {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--clr-expense);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Dashboard Header Stats */
+.header-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+}
+.stat-box {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--clr-white);
+}
+.stat-box i {
+    font-size: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.stat-box p {
+    font-size: 11px;
+    opacity: 0.8;
+    margin: 0 0 2px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.stat-box h3 {
+    font-size: 15px;
+    margin: 0;
+}
+.income-stat i { color: #4ADE80; }
+.expense-stat i { color: #F87171; }
+
+/* Fixes for Numpad Modal UI */
+.modal-content.bottom-sheet {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 20px 0 20px !important;
+}
+
+#transactionForm.modern-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
+}
+
+.modal-type-toggle {
+    display: flex;
+    background: #f1f5f9;
+    border-radius: 24px;
+    padding: 4px;
+    margin-bottom: 20px;
+}
+
+.modal-type-toggle .type-radio {
+    flex: 1;
+    text-align: center;
+}
+
+.modal-type-toggle .type-radio input {
+    display: none;
+}
+
+.modal-type-toggle .type-radio .type-btn {
+    display: block;
+    padding: 10px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    transition: 0.3s;
+}
+
+.modal-type-toggle .type-radio input:checked + .type-btn {
+    background: white;
+    color: var(--clr-expense);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.modal-type-toggle .type-radio input[value="pemasukan"]:checked + .type-btn {
+    color: var(--clr-light-green);
+}
+
+.btn-primary.w-100 {
+    margin-top: auto !important;
+    margin-bottom: 20px !important;
+}
+
+/* === MOBILE BROWSER FIXES FOR MODAL === */
+/* Prevent browser UI from hiding bottom elements */
+.modal-content.bottom-sheet {
+    max-height: 95vh; height: 95vh; /* Sedikit diturunkan agar lebih aman di HP */
+    display: flex;
+    flex-direction: column;
+    padding: 16px 16px 0 16px !important;
+}
+
+#transactionForm.modern-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto; 
+    /* Padding bawah yang super besar agar tombol Simpan tidak tertutup Numpad / Browser bar */
+    padding-bottom: 60px;
+}
+
+/* Numpad Section Container */
+.numpad-container {
+    margin-top: 10px;
+    padding-bottom: 20px;
+    flex-shrink: 0; /* Jangan menyusut */
+}
+
+/* Numpad Buttons */
+.numpad-grid {
+    gap: 8px; /* Kurangi gap sedikit agar tidak terlalu tinggi */
+}
+.numpad-btn {
+    padding: 12px; /* Perkecil padding sedikit agar tidak makan tempat vertikal */
+    font-size: 20px;
+}
+
+/* Kategori Area - Pastikan bisa discroll menyamping dengan rapi */
+.category-chips {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 10px; /* Space untuk scrollbar */
+    margin-bottom: 10px;
+}
+.category-chips::-webkit-scrollbar {
+    display: none; /* Sembunyikan scrollbar agar rapi */
+}
+
+/* Tombol Simpan */
+.btn-primary.w-100 {
+    margin-top: 10px !important;
+    margin-bottom: 20px !important;
+    flex-shrink: 0;
+}
+
+/* Numpad Modal Full Height Fix */
+#transactionForm.modern-form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.modal-content.bottom-sheet {
+    padding-bottom: 20px !important;
+}
+
+.amount-group {
+    flex-shrink: 0;
+}
+
+.form-group-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+.numpad-container {
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+/* === OVERFLOW FIX FOR NUMPAD UI === */
+.modal-content.bottom-sheet.numpad-ui {
+    max-height: 95vh !important;
+    height: 95vh;
+    padding-bottom: 20px !important;
+    display: flex;
+    flex-direction: column;
+}
+
+#transactionForm.numpad-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.scrollable-middle {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+.numpad-grid {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-bottom: 15px;
+}
+
+.btn-primary.w-100 {
+    flex-shrink: 0;
+    margin-top: 10px;
+    margin-bottom: 25px;
+}

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Money Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- View: Dashboard -->
+            <div id="dashboard" class="view active">
+                
+                <!-- TOP SECTION: Green Background -->
+                <section class="top-section">
+                    
+
+                    <div class="balance-container">
+                        <p class="balance-label">Your Wallet Balance</p>
+                        <h1 id="totalSaldo" class="balance-amount">Rp 0</h1>
+                    </div>
+
+                    <div class="header-stats">
+                        <div class="stat-box income-stat">
+                            <i class="fa-solid fa-arrow-down"></i>
+                            <div>
+                                <p>Pemasukan</p>
+                                <h3 id="headerPemasukan">Rp 0</h3>
+                            </div>
+                        </div>
+                        <div class="stat-box expense-stat">
+                            <i class="fa-solid fa-arrow-up"></i>
+                            <div>
+                                <p>Pengeluaran</p>
+                                <h3 id="headerPengeluaran">Rp 0</h3>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- BOTTOM SECTION: White Background -->
+                <section class="bottom-section">
+                    
+                    <!-- QUICK ACTIONS -->
+                    <div class="quick-actions">
+                        <div class="quick-action-item" onclick="openTransactionModal()">
+                            <div class="qa-icon"><i class="fa-solid fa-plus"></i></div>
+                            <span>Top Up</span>
+                        </div>
+                        <div class="quick-action-item" onclick="openTransactionModal('pengeluaran')">
+                            <div class="qa-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                            <span>Transfer</span>
+                        </div>
+                        <div class="quick-action-item" onclick="document.querySelector('.nav-item[data-target=\'laporan\']').click()">
+                            <div class="qa-icon"><i class="fa-solid fa-chart-pie"></i></div>
+                            <span>Report</span>
+                        </div>
+                        <div class="quick-action-item" onclick="document.querySelector('.nav-item[data-target=\'pengaturan\']').click()">
+                            <div class="qa-icon"><i class="fa-solid fa-ellipsis"></i></div>
+                            <span>More</span>
+                        </div>
+                    </div>
+
+                    <!-- RECENT TRANSACTIONS -->
+                    <div class="recent-transactions">
+                        <div class="section-header">
+                            <h3>Riwayat Transaksi</h3>
+                            <a href="#" class="view-all" onclick="document.querySelector('.nav-item[data-target=\'laporan\']').click()">Lihat Semua</a>
+                        </div>
+                        
+                        <div class="transaction-list" id="historyTableBody">
+                            <!-- Transactions injected via JS will be formatted via CSS to look like list items -->
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- View: Laporan -->
+            <div id="laporan" class="view">
+                <section class="top-section minimal">
+                    <header class="page-header">
+                        <h2>Laporan Keuangan</h2>
+                    </header>
+                </section>
+                
+                <section class="bottom-section full">
+                    <div class="summary-cards">
+                        <div class="summary-card text-green">
+                            <div class="sc-icon"><i class="fa-solid fa-arrow-down"></i></div>
+                            <div class="sc-details">
+                                <span>Pemasukan</span>
+                                <h3 id="summaryPemasukan">Rp 0</h3>
+                            </div>
+                        </div>
+                        <div class="summary-card text-red">
+                            <div class="sc-icon"><i class="fa-solid fa-arrow-up"></i></div>
+                            <div class="sc-details">
+                                <span>Pengeluaran</span>
+                                <h3 id="summaryPengeluaran">Rp 0</h3>
+                            </div>
+                        </div>
+                        <div class="summary-card text-blue">
+                            <div class="sc-icon"><i class="fa-solid fa-list-check"></i></div>
+                            <div class="sc-details">
+                                <span>Total Transaksi</span>
+                                <h3 id="summaryTransaksi">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-section">
+                        <h3>Grafik Keuangan</h3>
+                        <div class="chart-container">
+                            <canvas id="financeChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- View: Pengaturan -->
+            <div id="pengaturan" class="view">
+                <section class="top-section minimal">
+                    <header class="page-header">
+                        <h2>Pengaturan</h2>
+                    </header>
+                </section>
+
+                <section class="bottom-section full">
+                    <div class="settings-section">
+                        <h3>Manajemen Kategori</h3>
+                        <form id="categoryForm" class="modern-form">
+                            <div class="form-group">
+                                <label for="namaKategori">Nama Kategori Baru</label>
+                                <input type="text" id="namaKategori" name="namaKategori" required autocomplete="off" placeholder="Misal: Makanan">
+                            </div>
+                            <button type="submit" class="btn-primary">Tambah Kategori</button>
+                        </form>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Daftar Kategori</h3>
+                        <div class="category-list" id="categoryTableBody">
+                            <!-- Data dimuat via JS -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- BOTTOM NAVIGATION BAR -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-target="dashboard">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </div>
+            
+            <!-- FAB Container -->
+            <div class="fab-container">
+                <button class="fab-btn" onclick="openTransactionModal()" aria-label="Tambah Transaksi">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <div class="nav-item" data-target="pengaturan">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </div>
+        </nav>
+        
+        <!-- HIDDEN TABS FOR COMPATIBILITY (If JS directly clicks these) -->
+        <div style="display:none;">
+            <a href="#" class="nav-link active" data-target="dashboard">Dashboard</a>
+            <a href="#" class="nav-link" data-target="laporan">Laporan</a>
+            <a href="#" class="nav-link" data-target="pengaturan">Pengaturan</a>
+        </div>
+    </div>
+
+    <!-- MODAL: Transaction Form -->
+    <div id="transactionModal" class="modal-overlay">
+        <div class="modal-content bottom-sheet numpad-ui">
+            <!-- Header & Amount Display -->
+            <div class="numpad-header">
+                <button class="close-modal" type="button" onclick="closeTransactionModal()"><i class="fa-solid fa-xmark"></i></button>
+                <div class="type-selector-numpad">
+                    <label class="type-radio">
+                        <input type="radio" name="tipe_numpad" value="pengeluaran" checked onchange="updateFormTypeNumpad('pengeluaran')">
+                        <span class="type-btn pengeluaran-btn">Pengeluaran</span>
+                    </label>
+                    <label class="type-radio">
+                        <input type="radio" name="tipe_numpad" value="pemasukan" onchange="updateFormTypeNumpad('pemasukan')">
+                        <span class="type-btn pemasukan-btn">Pemasukan</span>
+                    </label>
+                </div>
+                <!-- Hidden select for app.js compatibility -->
+                <select id="tipe" name="tipe" style="display:none;">
+                    <option value="pengeluaran" selected>Pengeluaran</option>
+                    <option value="pemasukan">Pemasukan</option>
+                </select>
+
+                <p class="nominal-label">Nominal</p>
+                <h1 id="amountDisplay" class="amount-display text-red">Rp 0</h1>
+            </div>
+            
+            <form id="transactionForm" class="modern-form numpad-form">
+                <input type="hidden" id="nominal" name="nominal" value="0">
+                
+                <div class="scrollable-middle">
+<!-- Category Selector -->
+                <div class="category-chips-container" id="categoryChips">
+                    <!-- Disisipkan via JS -->
+                </div>
+                <!-- Hidden select for app.js compatibility -->
+                <select id="kategori" name="kategori" style="display:none;" required>
+                </select>
+
+                <!-- Text Input Keterangan -->
+                <div class="form-group-numpad">
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-bars"></i>
+                        <input type="text" id="deskripsi" name="deskripsi" autocomplete="off" placeholder="Keterangan (opsional)">
+                    </div>
+                </div>
+</div>
+                
+                <!-- NUMPAD -->
+                <div class="numpad-grid">
+                    <button type="button" class="numpad-btn" onclick="numpadPress('1')">1</button>
+                    <button type="button" class="numpad-btn" onclick="numpadPress('2')">2</button>
+                    <button type="button" class="numpad-btn" onclick="numpadPress('3')">3</button>
+                    <button type="button" class="numpad-btn" onclick="numpadPress('4')">4</button>
+                    <button type="button" class="numpad-btn" onclick="numpadPress('5')">5</button>
+                    <button type="button" class="numpad-btn" onclick="numpadPress('6')">6</button>
+                    <button type="button" class="numpad-btn" onclick="numpadPress('7')">7</button>
+                    <button type="button" class="numpad-btn" onclick="numpadPress('8')">8</button>
+                    <button type="button" class="numpad-btn" onclick="numpadPress('9')">9</button>
+                    <button type="button" class="numpad-btn" onclick="numpadPress('000')">000</button>
+                    <button type="button" class="numpad-btn" onclick="numpadPress('0')">0</button>
+                    <button type="button" class="numpad-btn numpad-del" onclick="numpadPress('del')"><i class="fa-solid fa-delete-left"></i></button>
+                </div>
+
+                <!-- Action Button -->
+                <button type="button" id="saveTransactionBtn" class="btn-primary btn-save-numpad w-100 mt-4 disabled" disabled>Simpan Transaksi</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // UI Helpers specific to the new layout
+        function openTransactionModal(type) {
+            const modal = document.getElementById('transactionModal');
+            modal.classList.add('active');
+            
+            // Reset numpad state
+            numpadValue = "0";
+            updateAmountDisplay();
+            
+            // Reset description
+            document.getElementById('deskripsi').value = "";
+
+            if (type) {
+                const radios = document.querySelectorAll('input[name="tipe_numpad"][type="radio"]');
+                radios.forEach(r => {
+                    r.checked = (r.value === type);
+                });
+                updateFormTypeNumpad(type);
+            }
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('transactionModal').classList.remove('active');
+            
+            // Re-render categories logic handled by app.js (optional)
+        }
+
+        function updateFormType(type) {
+            // Sync with the hidden select for app.js compatibility
+            const select = document.getElementById('tipe');
+            if(select) select.value = type;
+        }
+
+        function updateFormTypeNumpad(type) {
+            updateFormType(type);
+            const amountDisplay = document.getElementById('amountDisplay');
+            if(type === 'pengeluaran') {
+                amountDisplay.classList.remove('text-green');
+                amountDisplay.classList.add('text-red');
+            } else {
+                amountDisplay.classList.remove('text-red');
+                amountDisplay.classList.add('text-green');
+            }
+        }
+
+        let numpadValue = "0";
+
+        function updateAmountDisplay() {
+            const display = document.getElementById('amountDisplay');
+            const hiddenInput = document.getElementById('nominal');
+            const saveBtn = document.getElementById('saveTransactionBtn');
+            
+            const num = parseInt(numpadValue, 10);
+            display.innerText = 'Rp ' + num.toLocaleString('id-ID');
+            hiddenInput.value = num;
+
+            if(num > 0) {
+                saveBtn.classList.remove('disabled');
+                saveBtn.removeAttribute('disabled');
+            } else {
+                saveBtn.classList.add('disabled');
+                saveBtn.setAttribute('disabled', 'true');
+            }
+        }
+
+        function numpadPress(val) {
+            if(val === 'del') {
+                numpadValue = numpadValue.slice(0, -1);
+                if(numpadValue === '') numpadValue = '0';
+            } else if (val === '000') {
+                if(numpadValue !== '0') {
+                    numpadValue += '000';
+                }
+            } else {
+                if(numpadValue === '0') {
+                    numpadValue = val;
+                } else {
+                    numpadValue += val;
+                }
+            }
+            // limit to a reasonable max value (e.g. 15 digits)
+            if(numpadValue.length > 15) numpadValue = numpadValue.slice(0, 15);
+            updateAmountDisplay();
+        }
+
+
+        // Handle bottom nav clicks
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                // Update active state in nav
+                document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Show corresponding view
+                const targetId = item.getAttribute('data-target');
+                document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+        
+        // Connect hidden nav links for JS compatibility if app.js triggers them
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const target = link.getAttribute('data-target');
+                const bottomNavItem = document.querySelector(`.bottom-nav .nav-item[data-target="${target}"]`);
+                if(bottomNavItem) bottomNavItem.click();
+            });
+        });
+
+        // Close modal on outside click
+        document.getElementById('transactionModal').addEventListener('click', (e) => {
+            if (e.target.id === 'transactionModal') {
+                closeTransactionModal();
+            }
+        });
+    </script>
+</body>
+</html>
