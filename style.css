@@ -970,19 +970,7 @@ body {
 .expense-stat i { color: #F87171; }
 
 /* Fixes for Numpad Modal UI */
-.modal-content.bottom-sheet {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
-    transform: translateY(100%);
-    transition: transform 0.3s ease-out;
-    display: flex;
-    flex-direction: column;
-}
+
 
 #transactionForm.modern-form {
     display: flex;
@@ -1036,19 +1024,7 @@ body {
 
 /* === MOBILE BROWSER FIXES FOR MODAL === */
 /* Prevent browser UI from hiding bottom elements */
-.modal-content.bottom-sheet {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
-    transform: translateY(100%);
-    transition: transform 0.3s ease-out;
-    display: flex;
-    flex-direction: column;
-}
+
 
 #transactionForm.modern-form {
     display: flex;
@@ -1106,19 +1082,7 @@ body {
     height: 100%;
 }
 
-.modal-content.bottom-sheet {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
-    transform: translateY(100%);
-    transition: transform 0.3s ease-out;
-    display: flex;
-    flex-direction: column;
-}
+
 
 .amount-group {
     flex-shrink: 0;
