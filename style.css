@@ -1143,3 +1143,67 @@ body {
     margin-top: 10px;
     margin-bottom: 25px;
 }
+
+/* Report Specific CSS */
+.time-filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.time-filter-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.time-filter-btn.active {
+    background: var(--clr-light-green);
+    border-color: var(--clr-light-green);
+    font-weight: bold;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.summary-card {
+    background: var(--clr-white);
+    padding: 16px 12px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+.summary-card span {
+    font-size: 11px;
+    color: var(--clr-text-muted);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.summary-card h3 {
+    font-size: 14px;
+    margin: 0;
+}
+
+.text-green h3 { color: var(--clr-income); }
+.text-red h3 { color: var(--clr-expense); }
+.text-blue h3 { color: var(--clr-primary); }
+
+.top-expenses-section {
+    background: var(--clr-white);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
