@@ -1,4 +1,9 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Supabase Init
+    const supabaseUrl = 'https://rcclzilnplzpixsbtabx.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjY2x6aWxucGx6cGl4c2J0YWJ4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzQ2MjAzOCwiZXhwIjoyMDk5MDM4MDM4fQ.pc_QJ6hBvL95t3fZQ2Cg7yAQA5LtLqst0EFAX_BNoZU';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
     // Navigation (SPA Logic)
     const navLinks = document.querySelectorAll('.nav-link');
     const views = document.querySelectorAll('.view');
@@ -31,8 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let kategoriSelect = document.getElementById('kategori');
     
     // State
-    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-    let categories = JSON.parse(localStorage.getItem('categories')) || ["Gaji", "Makan", "Transport", "Lainnya"];
+    let transactions = [];
+    let categories = [];
     let chartInstance = null;
     
     const formatter = new Intl.NumberFormat('id-ID', {
@@ -127,9 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
             btnDelete.style.alignItems = 'center';
             btnDelete.style.justifyContent = 'center';
             
-            btnDelete.addEventListener('click', () => {
-                transactions.splice(index, 1);
-                saveAndRender();
+            btnDelete.addEventListener('click', async () => {
+                const { error } = await supabase.from('transactions').delete().eq('id', t.id);
+                if (error) {
+                    alert('Gagal menghapus transaksi: ' + error.message);
+                    return;
+                }
+                await fetchAndRender();
             });
             tdAction.appendChild(btnDelete);
             
@@ -201,18 +210,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.type = 'button';
                 btn.className = 'chip-btn';
                 if(index === 0) btn.classList.add('active');
-                btn.textContent = cat;
+                btn.textContent = cat.nama;
                 btn.onclick = () => {
                     document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    if(katSelect) katSelect.value = cat;
+                    if(katSelect) katSelect.value = cat.nama;
                 };
                 chipsContainer.appendChild(btn);
 
                 if(katSelect) {
                     const opt = document.createElement('option');
-                    opt.value = cat;
-                    opt.textContent = cat;
+                    opt.value = cat.nama;
+                    opt.textContent = cat.nama;
                     if(index === 0) opt.selected = true;
                     katSelect.appendChild(opt);
                 }
@@ -225,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             
             const tdName = document.createElement('td');
-            tdName.textContent = cat;
+            tdName.textContent = cat.nama;
             tdName.setAttribute('data-label', 'Nama Kategori');
             
             const tdAction = document.createElement('td');
@@ -234,14 +243,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const btnDelete = document.createElement('button');
             btnDelete.textContent = 'Hapus';
             btnDelete.className = 'btn-delete';
-            btnDelete.addEventListener('click', () => {
-                const isUsed = transactions.some(t => t.kategori === cat);
+            btnDelete.addEventListener('click', async () => {
+                const isUsed = transactions.some(t => t.kategori === cat.nama);
                 if (isUsed) {
-                    alert(`Kategori "${cat}" tidak bisa dihapus karena sedang digunakan dalam transaksi.`);
+                    alert(`Kategori "${cat.nama}" tidak bisa dihapus karena sedang digunakan dalam transaksi.`);
                     return;
                 }
-                categories.splice(index, 1);
-                saveAndRender();
+                const { error } = await supabase.from('categories').delete().eq('id', cat.id);
+                if (error) {
+                    alert('Gagal menghapus kategori: ' + error.message);
+                    return;
+                }
+                await fetchAndRender();
             });
             tdAction.appendChild(btnDelete);
             
@@ -250,84 +263,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    function saveAndRender() {
-        localStorage.setItem('transactions', JSON.stringify(transactions));
-        localStorage.setItem('categories', JSON.stringify(categories));
+    async function fetchAndRender() {
+        const [{ data: txData, error: txError }, { data: catData, error: catError }] = await Promise.all([
+            supabase.from('transactions').select('*').order('created_at', { ascending: false }),
+            supabase.from('categories').select('*').order('created_at', { ascending: true })
+        ]);
+
+        if (txError) console.error('Error fetching transactions:', txError);
+        else transactions = txData || [];
+
+        if (catError) console.error('Error fetching categories:', catError);
+        else categories = catData || [];
+
         updateUI();
     }
     
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const descInput = document.getElementById('deskripsi');
-        const nomInput = document.getElementById('nominal');
-        const tipeInput = document.getElementById('tipe');
-        const katInput = document.getElementById('kategori');
-        
-        const desc = descInput.value.trim();
-        const nom = Number(nomInput.value);
-        const tipe = tipeInput.value;
-        const kat = katInput.value;
-        
-        if (!desc || isNaN(nom) || nom <= 0) return;
-        
-        transactions.push({
-            deskripsi: desc,
-            nominal: nom,
-            tipe: tipe,
-            kategori: kat
-        });
-        
-        form.reset();
-        
-        // Ensure UI stays in sync for Numpad
-        if (typeof numpadValue !== 'undefined') {
-            numpadValue = "0";
-            if(typeof updateAmountDisplay === 'function') {
-                updateAmountDisplay();
-            }
-        }
-        
-        if(typeof closeTransactionModal === 'function') {
-            closeTransactionModal();
-        }
-
-        descInput.focus();
-        saveAndRender();
-    });
-    
-    
-    // Format nominal input dengan separator titik
-    const nomInput = document.getElementById('nominal');
-    if (nomInput) {
-        nomInput.addEventListener('keyup', function(e) {
-            // Hapus karakter selain angka
-            let val = this.value.replace(/[^\d]/g, '');
-            // Format ulang dengan titik pemisah ribuan
-            this.value = val.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        });
-    }
-
     if(categoryForm) {
-        categoryForm.addEventListener('submit', (e) => {
+        categoryForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const katInput = document.getElementById('namaKategori');
             const newCat = katInput.value.trim();
             
             if (!newCat) return;
-            if (categories.includes(newCat)) {
+            if (categories.some(c => c.name === newCat)) {
                 alert('Kategori sudah ada!');
                 return;
             }
             
-            categories.push(newCat);
+            const { error } = await supabase.from('categories').insert([{ nama: newCat }]);
+            if (error) {
+                alert('Gagal menambah kategori: ' + error.message);
+                return;
+            }
+
             categoryForm.reset();
             katInput.focus();
-            saveAndRender();
+            await fetchAndRender();
         });
     }
-    
-    // Init
 
     // Perbaikan bug Numpad UI form submission
     const numpadForm = document.getElementById('transactionForm');
@@ -337,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (saveBtn) {
         saveBtn.type = 'button';
         
-        saveBtn.addEventListener('click', function(e) {
+        saveBtn.addEventListener('click', async function(e) {
             e.preventDefault();
             
             const descInput = document.getElementById('deskripsi');
@@ -345,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tipeInput = document.getElementById('tipe'); // Hidden select
             
             // Kategori chip yg aktif (disimpan di hidden select kategori atau ambil yg ada class active)
-            const activeChip = document.querySelector('.category-chip.active');
+            const activeChip = document.querySelector('.chip-btn.active');
             let kat = "Lainnya"; // Default
             if (activeChip) {
                 kat = activeChip.textContent;
@@ -364,21 +337,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("Nominal tidak valid!");
                 return;
             }
-            
-            transactions.push({
+
+            const { error } = await supabase.from('transactions').insert([{
                 deskripsi: desc,
                 nominal: nom,
                 tipe: tipe,
                 kategori: kat
-            });
+            }]);
+
+            if (error) {
+                alert('Gagal menyimpan transaksi: ' + error.message);
+                return;
+            }
             
-            saveAndRender();
+            await fetchAndRender();
             
             // Reset form Numpad
             descInput.value = "";
             nomInput.value = "0";
-            if (typeof numpadValue !== 'undefined') if(typeof window.numpadValue !== 'undefined') window.numpadValue = '0';
-            if (typeof updateAmountDisplay === 'function') if(typeof window.updateAmountDisplay === 'function') window.updateAmountDisplay();
+            if (typeof numpadValue !== 'undefined') window.numpadValue = '0';
+            if (typeof updateAmountDisplay === 'function') window.updateAmountDisplay();
             
             // Reset state tombol simpan
             saveBtn.classList.add('disabled');
@@ -389,6 +367,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    updateUI();
+    await fetchAndRender();
 });
 
