@@ -54,9 +54,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         let totalPemasukan = 0;
         let totalPengeluaran = 0;
         
+        
         transactions.forEach((t, index) => {
-            if (t.tipe === 'pemasukan') totalPemasukan += t.nominal;
-            else totalPengeluaran += t.nominal;
+            // Pastikan nilai dikonversi jadi number untuk bigint dari database supabase
+            const nominalAngka = Number(t.nominal) || 0;
+            // Pastikan lowercase untuk pencocokan karena di Supabase kadang text disimpan as is
+            const tTipe = String(t.tipe).toLowerCase();
+
+            if (tTipe === 'pemasukan') totalPemasukan += nominalAngka;
+            else totalPengeluaran += nominalAngka;
+
             
             const tr = document.createElement('div'); // Ubah tr ke div agar sesuai style list
             tr.setAttribute('data-tipe', t.tipe);
@@ -70,13 +77,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // Keterangan & Deskripsi (Col 1)
             const iconWrapper = document.createElement('div');
-            iconWrapper.innerHTML = t.tipe === 'pemasukan' 
+            const tipeIcon = String(t.tipe).toLowerCase();
+            iconWrapper.innerHTML = tipeIcon === 'pemasukan' 
                 ? '<i class="fa-solid fa-arrow-down" style="color: var(--clr-income)"></i>' 
                 : '<i class="fa-solid fa-arrow-up" style="color: var(--clr-expense)"></i>';
             iconWrapper.style.width = '40px';
             iconWrapper.style.height = '40px';
             iconWrapper.style.borderRadius = '50%';
-            iconWrapper.style.background = t.tipe === 'pemasukan' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+            iconWrapper.style.background = tipeIcon === 'pemasukan' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
             iconWrapper.style.display = 'flex';
             iconWrapper.style.alignItems = 'center';
             iconWrapper.style.justifyContent = 'center';
