@@ -151,6 +151,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         totalSaldoEl.textContent = formatter.format(totalSaldo);
         
         // Update Report Summaries
+        
+        // Update header dashboard (Pemasukan & Pengeluaran ringkas)
+        const headIn = document.getElementById('headerPemasukan');
+        const headOut = document.getElementById('headerPengeluaran');
+        if(headIn) headIn.textContent = formatter.format(totalPemasukan);
+        if(headOut) headOut.textContent = formatter.format(totalPengeluaran);
+
         sumPemasukanEl.textContent = formatter.format(totalPemasukan);
         sumPengeluaranEl.textContent = formatter.format(totalPengeluaran);
         sumTransaksiEl.textContent = transactions.length;
