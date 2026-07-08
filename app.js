@@ -101,19 +101,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             const tr = document.createElement('div');
             tr.setAttribute('data-tipe', t.tipe);
             tr.style.display = 'flex';
-            tr.style.position = 'relative';
-            tr.style.padding = '16px';
-            tr.style.background = 'var(--clr-white)';
-            tr.style.borderRadius = 'var(--radius-md)';
-            tr.style.boxShadow = 'var(--shadow-sm)';
-            tr.style.marginBottom = '10px';
             tr.style.alignItems = 'center';
-            
+            tr.style.padding = '16px';
+            tr.style.background = '#FFFFFF';
+            tr.style.borderRadius = '16px';
+            tr.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+            tr.style.marginBottom = '12px';
+            tr.style.position = 'relative';
+
             const iconWrapper = document.createElement('div');
             const tipeIcon = String(t.tipe).toLowerCase();
             iconWrapper.innerHTML = tipeIcon === 'pemasukan' 
-                ? '<i class="fa-solid fa-arrow-down" style="color: var(--clr-income)"></i>' 
-                : '<i class="fa-solid fa-arrow-up" style="color: var(--clr-expense)"></i>';
+                ? '<i class="fa-solid fa-arrow-down" style="color: #10B981"></i>' 
+                : '<i class="fa-solid fa-arrow-up" style="color: #EF4444"></i>';
             iconWrapper.style.width = '40px';
             iconWrapper.style.height = '40px';
             iconWrapper.style.borderRadius = '50%';
@@ -130,19 +130,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             tdDesc.textContent = t.deskripsi;
             tdDesc.style.fontWeight = '600';
             tdDesc.style.fontSize = '14px';
+            tdDesc.style.color = '#1A1A1A';
             
-            const tdCat = document.createElement('div');
-            tdCat.textContent = t.kategori || 'Lainnya';
-            tdCat.style.fontSize = '12px';
-            tdCat.style.color = 'var(--clr-text-muted)';
+            const txDate = new Date(t.created_at);
+            const formattedDate = txDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            const formattedTime = txDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
             
-            detailsWrapper.append(tdDesc, tdCat);
+            const tdDetails = document.createElement('div');
+            tdDetails.textContent = `${t.kategori || 'Lainnya'} • ${formattedDate} ${formattedTime}`;
+            tdDetails.style.fontSize = '11px';
+            tdDetails.style.color = '#6B7280';
+            tdDetails.style.marginTop = '2px';
+            
+            detailsWrapper.append(tdDesc, tdDetails);
 
             const tdNom = document.createElement('div');
             tdNom.textContent = formatter.format(t.nominal);
-            tdNom.style.fontWeight = '600';
+            tdNom.style.fontWeight = '700';
             tdNom.style.fontSize = '15px';
-            tdNom.style.color = t.tipe === 'pemasukan' ? 'var(--clr-income)' : 'var(--clr-expense)';
+            tdNom.style.color = tipeIcon === 'pemasukan' ? '#10B981' : '#EF4444';
             tdNom.style.marginRight = '12px';
 
             const tdAction = document.createElement('div');
@@ -150,7 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnDelete.innerHTML = '<i class="fa-solid fa-trash"></i>';
             btnDelete.className = 'btn-delete';
             btnDelete.style.background = 'rgba(239, 68, 68, 0.1)';
-            btnDelete.style.color = 'var(--clr-expense)';
+            btnDelete.style.color = '#EF4444';
             btnDelete.style.border = 'none';
             btnDelete.style.width = '32px';
             btnDelete.style.height = '32px';
@@ -161,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnDelete.style.justifyContent = 'center';
             
             btnDelete.addEventListener('click', async () => {
-                const confirmDel = confirm(`Hapus transaksi "${t.deskripsi}"?`);
+                const confirmDel = confirm(`Apakah Anda yakin ingin menghapus transaksi "${t.deskripsi}"?`);
                 if (!confirmDel) return;
                 
                 const { error } = await supabase.from('transactions').delete().eq('id', t.id);
@@ -170,7 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
                 await fetchAndRender();
-                window.filterHistoryList(); // Refresh list filter
+                window.filterHistoryList();
             });
             tdAction.appendChild(btnDelete);
 
@@ -316,7 +322,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             tdAction.appendChild(btnDelete);
             
-            tr.append(iconWrapper, tdDesc, tdCat, tdNom, tdType, tdAction);
+            tr.append(iconWrapper, textWrapper, tdNom, tdType, tdAction);
             tableBody.appendChild(tr);
         });
         
@@ -605,19 +611,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             const tr = document.createElement('div');
             tr.setAttribute('data-tipe', t.tipe);
             tr.style.display = 'flex';
-            tr.style.position = 'relative';
-            tr.style.padding = '16px';
-            tr.style.background = 'var(--clr-white)';
-            tr.style.borderRadius = 'var(--radius-md)';
-            tr.style.boxShadow = 'var(--shadow-sm)';
-            tr.style.marginBottom = '10px';
             tr.style.alignItems = 'center';
-            
+            tr.style.padding = '16px';
+            tr.style.background = '#FFFFFF';
+            tr.style.borderRadius = '16px';
+            tr.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+            tr.style.marginBottom = '12px';
+            tr.style.position = 'relative';
+
             const iconWrapper = document.createElement('div');
             const tipeIcon = String(t.tipe).toLowerCase();
             iconWrapper.innerHTML = tipeIcon === 'pemasukan' 
-                ? '<i class="fa-solid fa-arrow-down" style="color: var(--clr-income)"></i>' 
-                : '<i class="fa-solid fa-arrow-up" style="color: var(--clr-expense)"></i>';
+                ? '<i class="fa-solid fa-arrow-down" style="color: #10B981"></i>' 
+                : '<i class="fa-solid fa-arrow-up" style="color: #EF4444"></i>';
             iconWrapper.style.width = '40px';
             iconWrapper.style.height = '40px';
             iconWrapper.style.borderRadius = '50%';
@@ -634,19 +640,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             tdDesc.textContent = t.deskripsi;
             tdDesc.style.fontWeight = '600';
             tdDesc.style.fontSize = '14px';
+            tdDesc.style.color = '#1A1A1A';
             
-            const tdCat = document.createElement('div');
-            tdCat.textContent = t.kategori || 'Lainnya';
-            tdCat.style.fontSize = '12px';
-            tdCat.style.color = 'var(--clr-text-muted)';
+            const txDate = new Date(t.created_at);
+            const formattedDate = txDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            const formattedTime = txDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
             
-            detailsWrapper.append(tdDesc, tdCat);
+            const tdDetails = document.createElement('div');
+            tdDetails.textContent = `${t.kategori || 'Lainnya'} • ${formattedDate} ${formattedTime}`;
+            tdDetails.style.fontSize = '11px';
+            tdDetails.style.color = '#6B7280';
+            tdDetails.style.marginTop = '2px';
+            
+            detailsWrapper.append(tdDesc, tdDetails);
 
             const tdNom = document.createElement('div');
             tdNom.textContent = formatter.format(t.nominal);
-            tdNom.style.fontWeight = '600';
+            tdNom.style.fontWeight = '700';
             tdNom.style.fontSize = '15px';
-            tdNom.style.color = t.tipe === 'pemasukan' ? 'var(--clr-income)' : 'var(--clr-expense)';
+            tdNom.style.color = tipeIcon === 'pemasukan' ? '#10B981' : '#EF4444';
             tdNom.style.marginRight = '12px';
 
             const tdAction = document.createElement('div');
@@ -654,7 +666,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnDelete.innerHTML = '<i class="fa-solid fa-trash"></i>';
             btnDelete.className = 'btn-delete';
             btnDelete.style.background = 'rgba(239, 68, 68, 0.1)';
-            btnDelete.style.color = 'var(--clr-expense)';
+            btnDelete.style.color = '#EF4444';
             btnDelete.style.border = 'none';
             btnDelete.style.width = '32px';
             btnDelete.style.height = '32px';
@@ -665,7 +677,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnDelete.style.justifyContent = 'center';
             
             btnDelete.addEventListener('click', async () => {
-                const confirmDel = confirm(`Hapus transaksi "${t.deskripsi}"?`);
+                const confirmDel = confirm(`Apakah Anda yakin ingin menghapus transaksi "${t.deskripsi}"?`);
                 if (!confirmDel) return;
                 
                 const { error } = await supabase.from('transactions').delete().eq('id', t.id);
@@ -674,7 +686,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
                 await fetchAndRender();
-                window.filterHistoryList(); // Refresh list filter
+                window.filterHistoryList();
             });
             tdAction.appendChild(btnDelete);
 
