@@ -496,6 +496,38 @@ body {
     cursor: pointer;
 }
 
+/* ------------------------
+   REPORT STYLES
+------------------------ */
+.time-filter-container {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px;
+    border-radius: 12px;
+}
+
+.time-filter-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.time-filter-btn.active {
+    background: var(--clr-white);
+    color: var(--clr-dark-green);
+    box-shadow: var(--shadow-sm);
+    font-weight: 600;
+}
+
 /* Forms */
 .modern-form .form-group {
     margin-bottom: 20px;

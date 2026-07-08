@@ -85,29 +85,31 @@
                     <header class="page-header">
                         <h2>Laporan Keuangan</h2>
                     </header>
+                    <div class="time-filter-container">
+                        <button class="time-filter-btn active" data-filter="all">Semua</button>
+                        <button class="time-filter-btn" data-filter="month">Bulan Ini</button>
+                        <button class="time-filter-btn" data-filter="today">Hari Ini</button>
+                    </div>
                 </section>
                 
                 <section class="bottom-section full">
                     <div class="summary-cards">
                         <div class="summary-card text-green">
-                            <div class="sc-icon"><i class="fa-solid fa-arrow-down"></i></div>
                             <div class="sc-details">
                                 <span>Pemasukan</span>
                                 <h3 id="summaryPemasukan">Rp 0</h3>
                             </div>
                         </div>
                         <div class="summary-card text-red">
-                            <div class="sc-icon"><i class="fa-solid fa-arrow-up"></i></div>
                             <div class="sc-details">
                                 <span>Pengeluaran</span>
                                 <h3 id="summaryPengeluaran">Rp 0</h3>
                             </div>
                         </div>
                         <div class="summary-card text-blue">
-                            <div class="sc-icon"><i class="fa-solid fa-list-check"></i></div>
                             <div class="sc-details">
-                                <span>Total Transaksi</span>
-                                <h3 id="summaryTransaksi">0</h3>
+                                <span>Net Income</span>
+                                <h3 id="summaryTransaksi">Rp 0</h3>
                             </div>
                         </div>
                     </div>
@@ -116,6 +118,13 @@
                         <h3>Grafik Keuangan</h3>
                         <div class="chart-container">
                             <canvas id="financeChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="top-expenses-section" style="margin-top: 24px;">
+                        <h3 style="margin-bottom: 12px; font-size: 16px;">Top 3 Pengeluaran</h3>
+                        <div class="transaction-list" id="topExpensesList">
+                            <!-- Diisi via JS -->
                         </div>
                     </div>
                 </section>
@@ -351,8 +360,10 @@
                 
                 // Show corresponding view
                 const targetId = item.getAttribute('data-target');
-                document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-                document.getElementById(targetId).classList.add('active');
+                if (targetId) {
+                    document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+                    document.getElementById(targetId).classList.add('active');
+                }
             });
         });
         

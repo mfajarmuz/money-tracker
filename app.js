@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let transactions = [];
     let categories = [];
     let chartInstance = null;
+    let currentFilter = 'all'; // 'all', 'month', 'today'
     
     const formatter = new Intl.NumberFormat('id-ID', {
         style: 'currency',
@@ -46,19 +47,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         minimumFractionDigits: 0
     });
 
+    // Setup Filter Listeners
+    const filterBtns = document.querySelectorAll('.time-filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.dataset.filter;
+            updateUI();
+        });
+    });
+
     function updateUI() {
         renderCategories();
-        // Render Table (XSS Safe via createElement)
+        
+        // Filter transactions for report logic
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+        
+        let reportTransactions = transactions;
+        if (currentFilter === 'month') {
+            reportTransactions = transactions.filter(t => t.created_at >= startOfMonth);
+        } else if (currentFilter === 'today') {
+            reportTransactions = transactions.filter(t => t.created_at >= startOfDay);
+        }
+
+        // Render Table (XSS Safe via createElement) - for dashboard (always shows all)
         tableBody.innerHTML = '';
         
+        // For Dashboard (Overall)
         let totalPemasukan = 0;
         let totalPengeluaran = 0;
         
-        
         transactions.forEach((t, index) => {
-            // Pastikan nilai dikonversi jadi number untuk bigint dari database supabase
             const nominalAngka = Number(t.nominal) || 0;
-            // Pastikan lowercase untuk pencocokan karena di Supabase kadang text disimpan as is
             const tTipe = String(t.tipe).toLowerCase();
 
             if (tTipe === 'pemasukan') totalPemasukan += nominalAngka;
@@ -159,36 +182,127 @@ document.addEventListener('DOMContentLoaded', async () => {
         totalSaldoEl.textContent = formatter.format(totalSaldo);
         
         // Update Report Summaries
+        let reportPemasukan = 0;
+        let reportPengeluaran = 0;
+        let expenseByCategory = {};
+        let expenseTransactions = [];
         
-        // Update header dashboard (Pemasukan & Pengeluaran ringkas)
+        reportTransactions.forEach(t => {
+            const nominalAngka = Number(t.nominal) || 0;
+            const tTipe = String(t.tipe).toLowerCase();
+            const cat = t.kategori || 'Lainnya';
+
+            if (tTipe === 'pemasukan') {
+                reportPemasukan += nominalAngka;
+            } else {
+                reportPengeluaran += nominalAngka;
+                expenseByCategory[cat] = (expenseByCategory[cat] || 0) + nominalAngka;
+                expenseTransactions.push(t);
+            }
+        });
+        
+        // Update header dashboard (Pemasukan & Pengeluaran ringkas) - always overall
         const headIn = document.getElementById('headerPemasukan');
         const headOut = document.getElementById('headerPengeluaran');
         if(headIn) headIn.textContent = formatter.format(totalPemasukan);
         if(headOut) headOut.textContent = formatter.format(totalPengeluaran);
 
-        sumPemasukanEl.textContent = formatter.format(totalPemasukan);
-        sumPengeluaranEl.textContent = formatter.format(totalPengeluaran);
-        sumTransaksiEl.textContent = transactions.length;
+        // Summary on Report View
+        sumPemasukanEl.textContent = formatter.format(reportPemasukan);
+        sumPengeluaranEl.textContent = formatter.format(reportPengeluaran);
+        sumTransaksiEl.textContent = formatter.format(reportPemasukan - reportPengeluaran);
         
-        updateChart(totalPemasukan, totalPengeluaran);
+        updateChart(expenseByCategory);
+        renderTopExpenses(expenseTransactions);
     }
     
-    function updateChart(pemasukan, pengeluaran) {
+    function renderTopExpenses(expenseTxs) {
+        const topList = document.getElementById('topExpensesList');
+        if (!topList) return;
+        topList.innerHTML = '';
+        
+        // Sort descending
+        const sorted = [...expenseTxs].sort((a, b) => Number(b.nominal) - Number(a.nominal)).slice(0, 3);
+        
+        if (sorted.length === 0) {
+            topList.innerHTML = '<p style="text-align: center; color: var(--clr-text-muted); font-size: 14px; padding: 16px;">Tidak ada pengeluaran di periode ini.</p>';
+            return;
+        }
+
+        sorted.forEach(t => {
+            const tr = document.createElement('div');
+            tr.style.display = 'flex';
+            tr.style.position = 'relative';
+            tr.style.padding = '16px';
+            tr.style.background = 'var(--clr-white)';
+            tr.style.borderRadius = 'var(--radius-md)';
+            tr.style.boxShadow = 'var(--shadow-sm)';
+            tr.style.flexWrap = 'wrap';
+            
+            const iconWrapper = document.createElement('div');
+            iconWrapper.innerHTML = '<i class="fa-solid fa-arrow-up" style="color: var(--clr-expense)"></i>';
+            iconWrapper.style.width = '40px';
+            iconWrapper.style.height = '40px';
+            iconWrapper.style.borderRadius = '50%';
+            iconWrapper.style.background = 'rgba(239, 68, 68, 0.1)';
+            iconWrapper.style.display = 'flex';
+            iconWrapper.style.alignItems = 'center';
+            iconWrapper.style.justifyContent = 'center';
+            iconWrapper.style.marginRight = '12px';
+            iconWrapper.style.order = '1';
+
+            const tdDesc = document.createElement('div');
+            tdDesc.textContent = t.deskripsi;
+            tdDesc.style.fontWeight = '600';
+            tdDesc.style.fontSize = '15px';
+            tdDesc.style.order = '2';
+            tdDesc.style.flex = '1';
+            tdDesc.style.marginBottom = '20px';
+            
+            const tdCat = document.createElement('div');
+            tdCat.textContent = t.kategori || '-';
+            tdCat.style.position = 'absolute';
+            tdCat.style.bottom = '16px';
+            tdCat.style.left = '64px';
+            tdCat.style.fontSize = '12px';
+            tdCat.style.color = 'var(--clr-text-muted)';
+            tdCat.style.order = '3';
+            
+            const tdNom = document.createElement('div');
+            tdNom.textContent = formatter.format(t.nominal);
+            tdNom.style.order = '4';
+            tdNom.style.fontWeight = '600';
+            tdNom.style.fontSize = '16px';
+            tdNom.style.textAlign = 'right';
+            tdNom.style.color = 'var(--clr-text-main)';
+
+            tr.append(iconWrapper, tdDesc, tdCat, tdNom);
+            topList.appendChild(tr);
+        });
+    }
+    
+    function updateChart(expenseByCategory) {
         if (chartInstance) {
             chartInstance.destroy();
         }
         
-        if (pemasukan === 0 && pengeluaran === 0) {
+        const labels = Object.keys(expenseByCategory);
+        const data = Object.values(expenseByCategory);
+        
+        if (labels.length === 0) {
             return;
         }
+
+        // Generate pleasant colors based on count
+        const colors = ['#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#d946ef', '#f43f5e'];
 
         chartInstance = new Chart(chartCanvas, {
             type: 'doughnut',
             data: {
-                labels: ['Pemasukan', 'Pengeluaran'],
+                labels: labels,
                 datasets: [{
-                    data: [pemasukan, pengeluaran],
-                    backgroundColor: ['#10b981', '#ef4444'], // Green, Red
+                    data: data,
+                    backgroundColor: colors.slice(0, labels.length),
                     borderWidth: 0,
                     hoverOffset: 4
                 }]
@@ -205,6 +319,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                             font: {
                                 family: "'Inter', sans-serif",
                                 size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += formatter.format(context.parsed);
+                                }
+                                return label;
                             }
                         }
                     }
@@ -300,7 +428,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const newCat = katInput.value.trim();
             
             if (!newCat) return;
-            if (categories.some(c => c.name === newCat)) {
+            if (categories.some(c => c.nama.toLowerCase() === newCat.toLowerCase())) {
                 alert('Kategori sudah ada!');
                 return;
             }
