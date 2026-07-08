@@ -418,6 +418,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
     }
+
+    function renderFilterCategories() {
+        const filterKategori = document.getElementById('filterKategori');
+        if (!filterKategori) return;
+        
+        const currentVal = filterKategori.value;
+        filterKategori.innerHTML = '<option value="all">Semua Kategori</option>';
+        
+        categories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.nama;
+            opt.textContent = cat.nama;
+            filterKategori.appendChild(opt);
+        });
+        
+        if (currentVal && categories.some(c => c.nama === currentVal)) {
+            filterKategori.value = currentVal;
+        } else {
+            filterKategori.value = 'all';
+        }
+    }
     
     async function fetchAndRender() {
         const tbody = document.getElementById('historyTableBody');
