@@ -1242,32 +1242,39 @@ body {
 }
 
 
-/* --- BOTTOM NAVIGATION & FAB --- */
+
+/* === PERFECT V2 BOTTOM NAVIGATION === */
 .bottom-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: var(--card-bg);
+    background-color: #ffffff;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 12px 0 16px 0;
-    border-top: 1px solid var(--border-color);
-    z-index: 900;
-    padding-bottom: env(safe-area-inset-bottom, 16px);
+    border-top: 1px solid #e5e7eb;
+    z-index: 999;
+    height: 70px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+    padding-bottom: env(safe-area-inset-bottom, 12px);
 }
 
 .bottom-nav .nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: var(--text-muted);
-    font-size: 12px;
-    text-decoration: none;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 500;
     cursor: pointer;
+    transition: color 0.2s;
     flex: 1;
-    transition: color 0.2s ease;
+    text-align: center;
+}
+
+.bottom-nav .nav-item.active {
+    color: #3b82f6;
 }
 
 .bottom-nav .nav-item i {
@@ -1275,91 +1282,98 @@ body {
     margin-bottom: 4px;
 }
 
-.bottom-nav .nav-item.active {
-    color: var(--primary-color);
-}
-
-.fab-wrapper {
-    position: relative;
-    top: -24px;
-    flex: 0 0 60px;
-    display: flex;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.fab-main-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    font-size: 24px;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.fab-main-btn:active {
-    transform: scale(0.95);
-}
-
-
-.loading-state {
-    text-align: center;
-    padding: 20px;
-    color: var(--text-muted);
-    font-size: 14px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-/* V2 FULL SCREEN MODAL FIX */
-.modal-content.bottom-sheet.numpad-ui {
-    max-height: 100vh !important;
-    height: 100vh !important;
-    border-radius: 0 !important;
-    padding-top: 40px !important; /* Jarak atas layar HP */
-}
-
-/* FAB Adjustments */
+/* FAB Absolute di Tengah Nav */
 .fab-container {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    top: -25px; /* Melayang di atas navbar */
-    z-index: 100;
+    top: -20px;
+    z-index: 1000;
 }
+
 .fab-btn {
-    background: var(--clr-light-green);
-    border: 4px solid var(--clr-white);
-    color: white;
-    width: 60px;
-    height: 60px;
+    background: #3b82f6 !important;
+    border: 5px solid #ffffff !important;
+    color: #ffffff !important;
+    width: 58px;
+    height: 58px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.fab-btn:active {
+    transform: scale(0.9);
+}
+
+.app-container {
+    padding-bottom: 85px;
+}
+
+/* === OVERFLOW FIX FOR NUMPAD UI === */
+.modal-content.bottom-sheet.numpad-ui {
+    max-height: 95vh !important;
+    height: 95vh;
+    padding-bottom: 20px !important;
+    display: flex;
+    flex-direction: column;
+}
+
+#transactionForm.numpad-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.scrollable-middle {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+.numpad-grid {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-bottom: 15px;
+}
+
+.btn-primary.w-100 {
+    flex-shrink: 0;
+    margin-top: 10px;
+    margin-bottom: 25px;
+}
+
+/* === STYLING UNTUK TOMBOL TIPE PENGELUARAN/PEMASUKAN DI MODAL NUMPAD === */
+.type-selector-numpad .type-radio {
     cursor: pointer;
 }
-.bottom-nav {
-    display: flex;
-    justify-content: space-between;
-    padding: 0 20px;
-    position: relative;
+.type-selector-numpad .type-radio input {
+    position: absolute;
+    opacity: 0;
 }
-.bottom-nav .nav-item {
-    flex: unset;
-    min-width: 60px;
+.type-selector-numpad .type-btn {
+    display: inline-block;
+    padding: 8px 24px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #64748b;
+    transition: all 0.3s ease;
+    text-align: center;
 }
-.bottom-nav .nav-item:nth-child(2) {
-    margin-right: 40px; /* Space for FAB */
+.type-selector-numpad .type-radio input:checked + .type-btn.pengeluaran-btn {
+    background: #ffffff;
+    color: var(--clr-expense, #ef4444);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.type-selector-numpad .type-radio input:checked + .type-btn.pemasukan-btn {
+    background: #ffffff;
+    color: var(--clr-light-green, #3b82f6);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }

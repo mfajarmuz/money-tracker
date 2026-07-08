@@ -174,16 +174,24 @@
                 <span>Report</span>
             </div>
             
-            <!-- FAB Raksasa Melayang -->
-            <div class="fab-container">
-                <button class="fab-btn" onclick="openTransactionModal()" aria-label="Tambah Transaksi">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
+            <!-- Spacer Tengah untuk FAB -->
+            <div class="nav-item-spacer" style="flex: 1; min-width: 60px; height: 10px; pointer-events: none;"></div>
+            
+            <div class="nav-item" data-target="pengaturan">
+                <i class="fa-solid fa-tags"></i>
+                <span>Category</span>
             </div>
-
+            
             <div class="nav-item" data-target="pengaturan">
                 <i class="fa-solid fa-gear"></i>
                 <span>Settings</span>
+            </div>
+            
+            <!-- FAB Raksasa Melayang -->
+            <div class="fab-container">
+                <button class="fab-btn" type="button" onclick="openTransactionModal()" aria-label="Tambah Transaksi">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
             </div>
         </nav>
         
