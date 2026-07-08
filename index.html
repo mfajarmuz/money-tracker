@@ -54,7 +54,7 @@
                             <div class="qa-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
                             <span>Pengeluaran</span>
                         </div>
-                        <div class="quick-action-item" onclick="document.querySelector('.nav-item[data-target=\'laporan\']').click()">
+                        <div class="quick-action-item" onclick="openRiwayatLengkapPage()">
                             <div class="qa-icon"><i class="fa-solid fa-chart-pie"></i></div>
                             <span>Report</span>
                         </div>
@@ -68,7 +68,7 @@
                     <div class="recent-transactions">
                         <div class="section-header">
                             <h3>Riwayat Transaksi</h3>
-                            <a href="#" class="view-all" onclick="document.querySelector('.nav-item[data-target=\'laporan\']').click()">Lihat Semua</a>
+                            <a href="#" class="view-all" onclick="openRiwayatLengkapPage()">Lihat Semua</a>
                         </div>
                         
                         <div class="transaction-list" id="historyTableBody">
@@ -79,6 +79,60 @@
                     </div>
                 </section>
 
+            </div>
+
+            <!-- View: Riwayat Lengkap (Semua Transaksi dengan Filter) -->
+            <div id="riwayat_lengkap" class="view">
+                <section class="top-section minimal">
+                    <header class="page-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <h2>Riwayat Lengkap</h2>
+                        <button type="button" onclick="document.querySelector('.bottom-nav .nav-item[data-target=\'dashboard\']').click()" class="btn-primary" style="padding: 6px 12px; font-size: 12px; background: rgba(255,255,255,0.2); color: white;">
+                            <i class="fa-solid fa-arrow-left"></i> Kembali
+                        </button>
+                    </header>
+                </section>
+
+                <section class="bottom-section full">
+                    <!-- Area Filter Canggih -->
+                    <div class="filter-card card" style="background: white; padding: 16px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+                        <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--clr-text-main);">Saring Transaksi</h4>
+                        
+                        <!-- Pencarian Keterangan -->
+                        <div class="form-group" style="min-width: 100%; margin-bottom: 12px;">
+                            <div class="input-with-icon" style="background: #f1f5f9; border-radius: 8px; padding: 4px 12px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-magnifying-glass" style="color: var(--clr-text-muted);"></i>
+                                <input type="text" id="searchKeterangan" placeholder="Cari keterangan..." onkeyup="filterHistoryList()" style="border: none; background: transparent; width: 100%; padding: 8px 0; outline: none; font-size: 14px;">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <!-- Filter Waktu -->
+                            <div class="form-group" style="flex: 1; min-width: 120px;">
+                                <select id="filterWaktu" onchange="filterHistoryList()" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: 13px;">
+                                    <option value="all">Semua Waktu</option>
+                                    <option value="today">Hari Ini</option>
+                                    <option value="month">Bulan Ini</option>
+                                    <option value="year">Tahun Ini</option>
+                                </select>
+                            </div>
+
+                            <!-- Filter Kategori -->
+                            <div class="form-group" style="flex: 1; min-width: 120px;">
+                                <select id="filterKategori" onchange="filterHistoryList()" style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; font-size: 13px;">
+                                    <option value="all">Semua Kategori</option>
+                                    <!-- Diisi via JS -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- List Hasil Filter -->
+                    <div class="history-list-section card">
+                        <div class="transaction-list" id="filterHistoryTableBody">
+                            <!-- Diisi via JS -->
+                        </div>
+                    </div>
+                </section>
             </div>
 
             <!-- View: Laporan -->
@@ -302,6 +356,19 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app.js"></script>
     <script>
+        
+        function openRiwayatLengkapPage() {
+            // Sembunyikan semua view, tampilkan riwayat_lengkap
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            document.getElementById('riwayat_lengkap').classList.add('active');
+            
+            // Matikan tombol aktif di bottom nav
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => nav.classList.remove('active'));
+            
+            // Trigger refresh filter
+            if(typeof window.filterHistoryList === 'function') window.filterHistoryList();
+        }
+
         // UI Helpers specific to the new layout
         function openTransactionModal(type) {
             const modal = document.getElementById('transactionModal');

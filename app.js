@@ -58,10 +58,150 @@ document.addEventListener('DOMContentLoaded', async () => {
             btn.classList.add('active');
             currentFilter = btn.dataset.filter;
             updateUI();
+
+    // === ADVANCED HISTORY FILTER LOGIC (V2) ===
+    window.filterHistoryList = () => {
+        const query = document.getElementById('searchKeterangan').value.toLowerCase().trim();
+        const waktu = document.getElementById('filterWaktu').value;
+        const kategori = document.getElementById('filterKategori').value;
+        
+        const listBody = document.getElementById('filterHistoryTableBody');
+        if (!listBody) return;
+        
+        listBody.innerHTML = '';
+        
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+        const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
+        
+        const filtered = transactions.filter(t => {
+            // Match Keterangan (Text Search)
+            const matchQuery = t.deskripsi.toLowerCase().includes(query);
+            
+            // Match Kategori
+            const matchCat = (kategori === 'all') || (t.kategori === kategori);
+            
+            // Match Waktu
+            const txTime = new Date(t.created_at).getTime();
+            let matchTime = true;
+            if (waktu === 'today') matchTime = txTime >= startOfDay;
+            else if (waktu === 'month') matchTime = txTime >= startOfMonth;
+            else if (waktu === 'year') matchTime = txTime >= startOfYear;
+            
+            return matchQuery && matchCat && matchTime;
+        });
+
+        if (filtered.length === 0) {
+            listBody.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--clr-text-muted);">Tidak ada transaksi yang cocok.</div>';
+            return;
+        }
+
+        filtered.forEach(t => {
+            const tr = document.createElement('div');
+            tr.setAttribute('data-tipe', t.tipe);
+            tr.style.display = 'flex';
+            tr.style.position = 'relative';
+            tr.style.padding = '16px';
+            tr.style.background = 'var(--clr-white)';
+            tr.style.borderRadius = 'var(--radius-md)';
+            tr.style.boxShadow = 'var(--shadow-sm)';
+            tr.style.marginBottom = '10px';
+            tr.style.alignItems = 'center';
+            
+            const iconWrapper = document.createElement('div');
+            const tipeIcon = String(t.tipe).toLowerCase();
+            iconWrapper.innerHTML = tipeIcon === 'pemasukan' 
+                ? '<i class="fa-solid fa-arrow-down" style="color: var(--clr-income)"></i>' 
+                : '<i class="fa-solid fa-arrow-up" style="color: var(--clr-expense)"></i>';
+            iconWrapper.style.width = '40px';
+            iconWrapper.style.height = '40px';
+            iconWrapper.style.borderRadius = '50%';
+            iconWrapper.style.background = tipeIcon === 'pemasukan' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+            iconWrapper.style.display = 'flex';
+            iconWrapper.style.alignItems = 'center';
+            iconWrapper.style.justifyContent = 'center';
+            iconWrapper.style.marginRight = '12px';
+            
+            const detailsWrapper = document.createElement('div');
+            detailsWrapper.style.flex = '1';
+            
+            const tdDesc = document.createElement('div');
+            tdDesc.textContent = t.deskripsi;
+            tdDesc.style.fontWeight = '600';
+            tdDesc.style.fontSize = '14px';
+            
+            const tdCat = document.createElement('div');
+            tdCat.textContent = t.kategori || 'Lainnya';
+            tdCat.style.fontSize = '12px';
+            tdCat.style.color = 'var(--clr-text-muted)';
+            
+            detailsWrapper.append(tdDesc, tdCat);
+
+            const tdNom = document.createElement('div');
+            tdNom.textContent = formatter.format(t.nominal);
+            tdNom.style.fontWeight = '600';
+            tdNom.style.fontSize = '15px';
+            tdNom.style.color = t.tipe === 'pemasukan' ? 'var(--clr-income)' : 'var(--clr-expense)';
+            tdNom.style.marginRight = '12px';
+
+            const tdAction = document.createElement('div');
+            const btnDelete = document.createElement('button');
+            btnDelete.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            btnDelete.className = 'btn-delete';
+            btnDelete.style.background = 'rgba(239, 68, 68, 0.1)';
+            btnDelete.style.color = 'var(--clr-expense)';
+            btnDelete.style.border = 'none';
+            btnDelete.style.width = '32px';
+            btnDelete.style.height = '32px';
+            btnDelete.style.borderRadius = '50%';
+            btnDelete.style.cursor = 'pointer';
+            btnDelete.style.display = 'flex';
+            btnDelete.style.alignItems = 'center';
+            btnDelete.style.justifyContent = 'center';
+            
+            btnDelete.addEventListener('click', async () => {
+                const confirmDel = confirm(`Hapus transaksi "${t.deskripsi}"?`);
+                if (!confirmDel) return;
+                
+                const { error } = await supabase.from('transactions').delete().eq('id', t.id);
+                if (error) {
+                    alert('Gagal menghapus: ' + error.message);
+                    return;
+                }
+                await fetchAndRender();
+                window.filterHistoryList(); // Refresh list filter
+            });
+            tdAction.appendChild(btnDelete);
+
+            tr.append(iconWrapper, detailsWrapper, tdNom, tdAction);
+            listBody.appendChild(tr);
+        });
+    };
+
+    // Fungsi populasikan dropdown kategori di filter riwayat
+    function renderFilterCategories() {
+        const filterCatSelect = document.getElementById('filterKategori');
+        if (!filterCatSelect) return;
+        
+        const currentValue = filterCatSelect.value;
+        filterCatSelect.innerHTML = '<option value="all">Semua Kategori</option>';
+        
+        categories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.nama;
+            opt.textContent = cat.nama;
+            filterCatSelect.appendChild(opt);
+        });
+        
+        // Kembalikan status filter terpilih agar tidak keriset saat render ulang
+        filterCatSelect.value = currentValue || 'all';
+    }
         });
     });
 
     function updateUI() {
+        renderFilterCategories();
         renderCategories();
         
         // Filter transactions for report logic
@@ -422,6 +562,145 @@ document.addEventListener('DOMContentLoaded', async () => {
         else categories = catData || [];
 
         updateUI();
+
+    // === ADVANCED HISTORY FILTER LOGIC (V2) ===
+    window.filterHistoryList = () => {
+        const query = document.getElementById('searchKeterangan').value.toLowerCase().trim();
+        const waktu = document.getElementById('filterWaktu').value;
+        const kategori = document.getElementById('filterKategori').value;
+        
+        const listBody = document.getElementById('filterHistoryTableBody');
+        if (!listBody) return;
+        
+        listBody.innerHTML = '';
+        
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+        const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
+        
+        const filtered = transactions.filter(t => {
+            // Match Keterangan (Text Search)
+            const matchQuery = t.deskripsi.toLowerCase().includes(query);
+            
+            // Match Kategori
+            const matchCat = (kategori === 'all') || (t.kategori === kategori);
+            
+            // Match Waktu
+            const txTime = new Date(t.created_at).getTime();
+            let matchTime = true;
+            if (waktu === 'today') matchTime = txTime >= startOfDay;
+            else if (waktu === 'month') matchTime = txTime >= startOfMonth;
+            else if (waktu === 'year') matchTime = txTime >= startOfYear;
+            
+            return matchQuery && matchCat && matchTime;
+        });
+
+        if (filtered.length === 0) {
+            listBody.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--clr-text-muted);">Tidak ada transaksi yang cocok.</div>';
+            return;
+        }
+
+        filtered.forEach(t => {
+            const tr = document.createElement('div');
+            tr.setAttribute('data-tipe', t.tipe);
+            tr.style.display = 'flex';
+            tr.style.position = 'relative';
+            tr.style.padding = '16px';
+            tr.style.background = 'var(--clr-white)';
+            tr.style.borderRadius = 'var(--radius-md)';
+            tr.style.boxShadow = 'var(--shadow-sm)';
+            tr.style.marginBottom = '10px';
+            tr.style.alignItems = 'center';
+            
+            const iconWrapper = document.createElement('div');
+            const tipeIcon = String(t.tipe).toLowerCase();
+            iconWrapper.innerHTML = tipeIcon === 'pemasukan' 
+                ? '<i class="fa-solid fa-arrow-down" style="color: var(--clr-income)"></i>' 
+                : '<i class="fa-solid fa-arrow-up" style="color: var(--clr-expense)"></i>';
+            iconWrapper.style.width = '40px';
+            iconWrapper.style.height = '40px';
+            iconWrapper.style.borderRadius = '50%';
+            iconWrapper.style.background = tipeIcon === 'pemasukan' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+            iconWrapper.style.display = 'flex';
+            iconWrapper.style.alignItems = 'center';
+            iconWrapper.style.justifyContent = 'center';
+            iconWrapper.style.marginRight = '12px';
+            
+            const detailsWrapper = document.createElement('div');
+            detailsWrapper.style.flex = '1';
+            
+            const tdDesc = document.createElement('div');
+            tdDesc.textContent = t.deskripsi;
+            tdDesc.style.fontWeight = '600';
+            tdDesc.style.fontSize = '14px';
+            
+            const tdCat = document.createElement('div');
+            tdCat.textContent = t.kategori || 'Lainnya';
+            tdCat.style.fontSize = '12px';
+            tdCat.style.color = 'var(--clr-text-muted)';
+            
+            detailsWrapper.append(tdDesc, tdCat);
+
+            const tdNom = document.createElement('div');
+            tdNom.textContent = formatter.format(t.nominal);
+            tdNom.style.fontWeight = '600';
+            tdNom.style.fontSize = '15px';
+            tdNom.style.color = t.tipe === 'pemasukan' ? 'var(--clr-income)' : 'var(--clr-expense)';
+            tdNom.style.marginRight = '12px';
+
+            const tdAction = document.createElement('div');
+            const btnDelete = document.createElement('button');
+            btnDelete.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            btnDelete.className = 'btn-delete';
+            btnDelete.style.background = 'rgba(239, 68, 68, 0.1)';
+            btnDelete.style.color = 'var(--clr-expense)';
+            btnDelete.style.border = 'none';
+            btnDelete.style.width = '32px';
+            btnDelete.style.height = '32px';
+            btnDelete.style.borderRadius = '50%';
+            btnDelete.style.cursor = 'pointer';
+            btnDelete.style.display = 'flex';
+            btnDelete.style.alignItems = 'center';
+            btnDelete.style.justifyContent = 'center';
+            
+            btnDelete.addEventListener('click', async () => {
+                const confirmDel = confirm(`Hapus transaksi "${t.deskripsi}"?`);
+                if (!confirmDel) return;
+                
+                const { error } = await supabase.from('transactions').delete().eq('id', t.id);
+                if (error) {
+                    alert('Gagal menghapus: ' + error.message);
+                    return;
+                }
+                await fetchAndRender();
+                window.filterHistoryList(); // Refresh list filter
+            });
+            tdAction.appendChild(btnDelete);
+
+            tr.append(iconWrapper, detailsWrapper, tdNom, tdAction);
+            listBody.appendChild(tr);
+        });
+    };
+
+    // Fungsi populasikan dropdown kategori di filter riwayat
+    function renderFilterCategories() {
+        const filterCatSelect = document.getElementById('filterKategori');
+        if (!filterCatSelect) return;
+        
+        const currentValue = filterCatSelect.value;
+        filterCatSelect.innerHTML = '<option value="all">Semua Kategori</option>';
+        
+        categories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.nama;
+            opt.textContent = cat.nama;
+            filterCatSelect.appendChild(opt);
+        });
+        
+        // Kembalikan status filter terpilih agar tidak keriset saat render ulang
+        filterCatSelect.value = currentValue || 'all';
+    }
     }
     
     if(categoryForm) {
