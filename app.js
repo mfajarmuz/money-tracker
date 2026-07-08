@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const chartCanvas = document.getElementById('financeChart');
     const categoryForm = document.getElementById('categoryForm');
     const categoryTableBody = document.getElementById('categoryTableBody');
+    window.transactions = transactions;
     let kategoriSelect = document.getElementById('kategori');
     
     // State

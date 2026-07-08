@@ -132,8 +132,8 @@
                 </section>
             </div>
 
-            <!-- View: Pengaturan -->
-            <div id="pengaturan" class="view">
+            <!-- View: Kategori -->
+            <div id="kategori_view" class="view">
                 <section class="top-section minimal">
                     <header class="page-header">
                         <h2>Pengaturan</h2>
@@ -157,6 +157,32 @@
                         <div class="category-list" id="categoryTableBody">
                             <!-- Data dimuat via JS -->
                         </div>
+                    </div>
+                </section>
+            </div>
+        <!-- View: Pengaturan (Settings baru) -->
+            <div id="pengaturan" class="view">
+                <section class="top-section minimal">
+                    <header class="page-header">
+                        <h2>Pengaturan Aplikasi</h2>
+                    </header>
+                </section>
+
+                <section class="bottom-section full">
+                    <div class="settings-section card" style="background: white; padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+                        <h3>Ekspor Data</h3>
+                        <p style="color: var(--clr-text-muted); font-size: 13px; margin: 8px 0 16px 0;">Unduh semua data transaksi yang tersimpan di database Supabase ke dalam file Excel/CSV.</p>
+                        <button type="button" onclick="exportToCSV()" class="btn-primary" style="background: #3b82f6; width: 100%; border-radius: 8px; color: white;">
+                            <i class="fa-solid fa-file-csv" style="margin-right: 8px;"></i> Ekspor ke CSV
+                        </button>
+                    </div>
+
+                    <div class="settings-section card" style="background: white; padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+                        <h3 style="color: var(--clr-expense);">Reset Aplikasi</h3>
+                        <p style="color: var(--clr-text-muted); font-size: 13px; margin: 8px 0 16px 0;">Hapus semua data transaksi secara permanen dari database Supabase. Tindakan ini tidak dapat dibatalkan.</p>
+                        <button type="button" onclick="dangerResetDatabase()" class="btn-primary" style="background: var(--clr-expense); width: 100%; border-radius: 8px; color: white;">
+                            <i class="fa-solid fa-trash-can" style="margin-right: 8px;"></i> Hapus Semua Transaksi
+                        </button>
                     </div>
                 </section>
             </div>
