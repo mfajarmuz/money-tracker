@@ -68,18 +68,24 @@ function renderAccountsList(currentUser) {
         const { data: { session } } = sb.auth.getSession();
         if (session) {
             addSessionToList(session);
-            location.reload();
-            return;
         }
     }
 
-    sessions.forEach(s => {
+    // Re-get list after fallback update
+    const activeSessions = getStoredSessions();
+
+    activeSessions.forEach(s => {
         const isCurrent = s.user.id === currentUser.id;
         const row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-radius:10px;border:1px solid ' + (isCurrent ? '#3b82f6' : '#e2e8f0') + ';';
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-radius:10px;border:1px solid ' + (isCurrent ? '#3b82f6' : '#e2e8f0') + ';margin-bottom:8px;';
 
         const info = document.createElement('div');
         info.style.flex = '1';
+        if (!isCurrent) {
+            info.style.cursor = 'pointer';
+            info.addEventListener('click', () => window.switchAccount(s.user.id));
+        }
+        
         const name = document.createElement('div');
         name.textContent = s.user.email || 'User';
         name.style.cssText = 'font-weight:600;font-size:13px;color:#1e293b;';
@@ -88,19 +94,15 @@ function renderAccountsList(currentUser) {
         badge.style.cssText = 'font-size:10px;color:' + (isCurrent ? '#3b82f6' : '#64748b') + ';font-weight:' + (isCurrent ? 'bold' : 'normal') + ';';
         info.append(name, badge);
 
-        if (!isCurrent) {
-            row.style.cursor = 'pointer';
-            row.addEventListener('click', () => switchAccount(s.user.id));
-        }
-
         const actions = document.createElement('div');
         const logoutBtn = document.createElement('button');
+        logoutBtn.type = 'button';
         logoutBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
         logoutBtn.style.cssText = 'background:none;border:none;color:#ef4444;cursor:pointer;padding:6px;font-size:14px;';
         logoutBtn.title = 'Hapus akun ini';
         logoutBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            removeAccount(s.user.id);
+            window.removeAccount(s.user.id);
         });
         actions.appendChild(logoutBtn);
 
@@ -110,7 +112,7 @@ function renderAccountsList(currentUser) {
 }
 
 // Switch Active Account
-async function switchAccount(userId) {
+window.switchAccount = async function(userId) {
     const sessions = getStoredSessions();
     const target = sessions.find(s => s.user.id === userId);
     if (!target) return;
@@ -123,45 +125,40 @@ async function switchAccount(userId) {
 
     if (error) {
         alert('Gagal beralih akun: ' + error.message);
-        // Remove from list if tokens are expired/invalid
-        removeAccount(userId);
+        window.removeAccount(userId);
         return;
     }
 
     localStorage.setItem('mt_current_user_id', userId);
     location.reload();
-}
+};
 
 // Remove / Logout specific account
-async function removeAccount(userId) {
+window.removeAccount = async function(userId) {
     let sessions = getStoredSessions();
     const currentUserId = localStorage.getItem('mt_current_user_id');
 
     if (userId === currentUserId) {
-        // If logging out the current active account, do normal sign out
         await sb.auth.signOut();
         sessions = sessions.filter(s => s.user.id !== userId);
         saveSessions(sessions);
         localStorage.removeItem('mt_current_user_id');
         location.reload();
     } else {
-        // Just remove from local list for background accounts
         sessions = sessions.filter(s => s.user.id !== userId);
         saveSessions(sessions);
         location.reload();
     }
-}
+};
 
 // Add New Account button trigger
 window.addNewAccount = async function() {
-    // Flow: Redirect to Google OAuth again to get a new session
-    // Once callback returns, onAuthStateChange will append the new account automatically
     const { error } = await sb.auth.signInWithOAuth({
         provider: 'google',
         options: {
             redirectTo: window.location.origin + window.location.pathname,
             queryParams: {
-                prompt: 'select_account' // Forces Google to let the user select a different account
+                prompt: 'select_account'
             }
         }
     });
