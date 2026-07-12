@@ -10,6 +10,35 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ===========================
 // AUTH
+// ===========================
+
+// Helper multi-login sessions storage
+function getStoredSessions() {
+    try {
+        return JSON.parse(localStorage.getItem('mt_sessions') || '[]');
+    } catch(e) {
+        return [];
+    }
+}
+
+function saveSessions(sessions) {
+    localStorage.setItem('mt_sessions', JSON.stringify(sessions));
+}
+
+function addSessionToList(session) {
+    if (!session || !session.user) return;
+    let sessions = getStoredSessions();
+    // Remove if exists to update with fresh tokens
+    sessions = sessions.filter(s => s.user.id !== session.user.id);
+    sessions.push({
+        user: session.user,
+        access_token: session.access_token,
+        refresh_token: session.refresh_token
+    });
+    saveSessions(sessions);
+    localStorage.setItem('mt_current_user_id', session.user.id);
+}
+
 // Wrap all DOM-dependent code
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -23,10 +52,121 @@ function showApp(user) {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('mainContent').style.display = '';
     document.getElementById('bottomNav').style.display = '';
-    const emailEl = document.getElementById('currentUserEmail');
-    if (emailEl) emailEl.textContent = 'Login sebagai: ' + (user.email || '');
+    renderAccountsList(user);
     initApp();
 }
+
+// Render multi-account list in settings
+function renderAccountsList(currentUser) {
+    const listEl = document.getElementById('accountsList');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+
+    const sessions = getStoredSessions();
+    if (sessions.length === 0 && currentUser) {
+        // Fallback if current user session is active but not stored in multi-login yet
+        const { data: { session } } = sb.auth.getSession();
+        if (session) {
+            addSessionToList(session);
+            location.reload();
+            return;
+        }
+    }
+
+    sessions.forEach(s => {
+        const isCurrent = s.user.id === currentUser.id;
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-radius:10px;border:1px solid ' + (isCurrent ? '#3b82f6' : '#e2e8f0') + ';';
+
+        const info = document.createElement('div');
+        info.style.flex = '1';
+        const name = document.createElement('div');
+        name.textContent = s.user.email || 'User';
+        name.style.cssText = 'font-weight:600;font-size:13px;color:#1e293b;';
+        const badge = document.createElement('span');
+        badge.textContent = isCurrent ? 'Aktif' : 'Klik untuk beralih';
+        badge.style.cssText = 'font-size:10px;color:' + (isCurrent ? '#3b82f6' : '#64748b') + ';font-weight:' + (isCurrent ? 'bold' : 'normal') + ';';
+        info.append(name, badge);
+
+        if (!isCurrent) {
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', () => switchAccount(s.user.id));
+        }
+
+        const actions = document.createElement('div');
+        const logoutBtn = document.createElement('button');
+        logoutBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+        logoutBtn.style.cssText = 'background:none;border:none;color:#ef4444;cursor:pointer;padding:6px;font-size:14px;';
+        logoutBtn.title = 'Hapus akun ini';
+        logoutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeAccount(s.user.id);
+        });
+        actions.appendChild(logoutBtn);
+
+        row.append(info, actions);
+        listEl.appendChild(row);
+    });
+}
+
+// Switch Active Account
+async function switchAccount(userId) {
+    const sessions = getStoredSessions();
+    const target = sessions.find(s => s.user.id === userId);
+    if (!target) return;
+
+    // Load new session into Supabase client
+    const { error } = await sb.auth.setSession({
+        access_token: target.access_token,
+        refresh_token: target.refresh_token
+    });
+
+    if (error) {
+        alert('Gagal beralih akun: ' + error.message);
+        // Remove from list if tokens are expired/invalid
+        removeAccount(userId);
+        return;
+    }
+
+    localStorage.setItem('mt_current_user_id', userId);
+    location.reload();
+}
+
+// Remove / Logout specific account
+async function removeAccount(userId) {
+    let sessions = getStoredSessions();
+    const currentUserId = localStorage.getItem('mt_current_user_id');
+
+    if (userId === currentUserId) {
+        // If logging out the current active account, do normal sign out
+        await sb.auth.signOut();
+        sessions = sessions.filter(s => s.user.id !== userId);
+        saveSessions(sessions);
+        localStorage.removeItem('mt_current_user_id');
+        location.reload();
+    } else {
+        // Just remove from local list for background accounts
+        sessions = sessions.filter(s => s.user.id !== userId);
+        saveSessions(sessions);
+        location.reload();
+    }
+}
+
+// Add New Account button trigger
+window.addNewAccount = async function() {
+    // Flow: Redirect to Google OAuth again to get a new session
+    // Once callback returns, onAuthStateChange will append the new account automatically
+    const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin + window.location.pathname,
+            queryParams: {
+                prompt: 'select_account' // Forces Google to let the user select a different account
+            }
+        }
+    });
+    if (error) alert('Gagal menambah akun: ' + error.message);
+};
 
 // Google Login Event Listener
 const googleBtn = document.getElementById('googleLoginBtn');
@@ -52,15 +192,31 @@ if (googleBtn) {
 
 // Check existing session on load
 (async function initAuth() {
+    // Check if we need to load a specific user session from multi-login on startup
+    const currentUserId = localStorage.getItem('mt_current_user_id');
+    const sessions = getStoredSessions();
+
+    if (currentUserId && sessions.length > 0) {
+        const currentSession = sessions.find(s => s.user.id === currentUserId);
+        if (currentSession) {
+            await sb.auth.setSession({
+                access_token: currentSession.access_token,
+                refresh_token: currentSession.refresh_token
+            });
+        }
+    }
+
     const { data: { session } } = await sb.auth.getSession();
     if (session) {
+        addSessionToList(session);
         showApp(session.user);
     } else {
         showAuthScreen();
     }
 
     sb.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN') {
+        if (event === 'SIGNED_IN' && session) {
+            addSessionToList(session);
             showApp(session.user);
         } else if (event === 'SIGNED_OUT') {
             showAuthScreen();

@@ -256,11 +256,13 @@
                         </button>
                     </div>
 
-                    <div class="settings-section card" style="background: white; padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
-                        <h3>Akun</h3>
-                        <p id="currentUserEmail" style="color: var(--clr-text-muted); font-size: 13px; margin: 8px 0 16px 0;"></p>
-                        <button type="button" onclick="logoutUser()" class="btn-primary" style="background: #64748b; width: 100%; border-radius: 8px; color: white;">
-                            <i class="fa-solid fa-right-from-bracket" style="margin-right: 8px;"></i> Logout
+                    <div class="settings-section card" style="background: white; padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+                        <h3>Kelola Akun (Multi-Login)</h3>
+                        <div id="accountsList" style="display: flex; flex-direction: column; gap: 10px; margin: 12px 0;">
+                            <!-- Dinamis via JS -->
+                        </div>
+                        <button type="button" onclick="addNewAccount()" class="btn-primary" style="background: #3b82f6; width: 100%; border-radius: 8px; color: white; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-user-plus"></i> Tambah Akun Baru
                         </button>
                     </div>
                 </section>
