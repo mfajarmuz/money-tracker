@@ -603,22 +603,35 @@ async function initApp() {
             openEditTransactionPage(t);
         });
 
-        newDelBtn.addEventListener('click', async () => {
-            if (!confirm(`Hapus transaksi "${t.deskripsi || 'Transaksi'}"?`)) return;
-            newDelBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Hapus...';
-            newDelBtn.disabled = true;
+        newDelBtn.addEventListener('click', () => {
+            const modal = document.getElementById('deleteConfirmModal');
+            const descEl = document.getElementById('deleteConfirmDesc');
+            const confirmBtn = document.getElementById('btnConfirmDeleteAction');
 
-            const { error } = await sb.from('transactions').delete().eq('id', t.id);
-            newDelBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Hapus';
-            newDelBtn.disabled = false;
+            descEl.textContent = `"${t.deskripsi || 'Transaksi'}"`;
+            modal.style.display = 'flex';
 
-            if (error) {
-                alert('Gagal menghapus: ' + error.message);
-                return;
-            }
+            // Clear previous confirmation listeners by cloning the button
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.replaceWith(newConfirmBtn);
 
-            await fetchAndRender();
-            closeDetailPage();
+            newConfirmBtn.addEventListener('click', async () => {
+                newConfirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Hapus...';
+                newConfirmBtn.disabled = true;
+
+                const { error } = await sb.from('transactions').delete().eq('id', t.id);
+                newConfirmBtn.innerHTML = 'Hapus';
+                newConfirmBtn.disabled = false;
+
+                if (error) {
+                    alert('Gagal menghapus: ' + error.message);
+                    return;
+                }
+
+                await fetchAndRender();
+                closeDeleteConfirmModal();
+                closeDetailPage();
+            });
         });
     };
 
