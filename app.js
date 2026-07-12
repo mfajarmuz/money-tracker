@@ -542,6 +542,35 @@ async function initApp() {
     const saveBtn = document.getElementById('saveTransactionBtn');
     const deleteBtn = document.getElementById('deleteTransactionBtn');
     
+    // State for deletion
+    let transactionIdToDelete = null;
+
+    // Handle Confirm Delete button click (bind once, permanent listener)
+    const btnConfirmDeleteAction = document.getElementById('btnConfirmDeleteAction');
+    if (btnConfirmDeleteAction) {
+        btnConfirmDeleteAction.addEventListener('click', async () => {
+            if (!transactionIdToDelete) return;
+            
+            btnConfirmDeleteAction.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Hapus...';
+            btnConfirmDeleteAction.disabled = true;
+
+            const { error } = await sb.from('transactions').delete().eq('id', transactionIdToDelete);
+            
+            btnConfirmDeleteAction.innerHTML = 'Hapus';
+            btnConfirmDeleteAction.disabled = false;
+
+            if (error) {
+                alert('Gagal menghapus: ' + error.message);
+                return;
+            }
+
+            await fetchAndRender();
+            closeDeleteConfirmModal();
+            closeDetailPage();
+            transactionIdToDelete = null;
+        });
+    }
+
     // Global function to open details page
     window.openTransactionDetailPage = function(t) {
         // Record current active view before transitioning so we can navigate back correctly
@@ -592,46 +621,23 @@ async function initApp() {
         const editBtn = document.getElementById('detailEditBtn');
         const delBtn = document.getElementById('detailDeleteBtn');
 
-        // Clear existing listeners by replacing buttons
+        // Clear existing listeners by replacing buttons (only for edit button, delete is simple click now)
         const newEditBtn = editBtn.cloneNode(true);
-        const newDelBtn = delBtn.cloneNode(true);
         editBtn.replaceWith(newEditBtn);
-        delBtn.replaceWith(newDelBtn);
 
         newEditBtn.addEventListener('click', () => {
             // Open full-screen Edit Page view instead of numpad modal
             openEditTransactionPage(t);
         });
 
+        // Simpler delete click listener: just set global state and show modal
+        const newDelBtn = delBtn.cloneNode(true);
+        delBtn.replaceWith(newDelBtn);
+        
         newDelBtn.addEventListener('click', () => {
-            const modal = document.getElementById('deleteConfirmModal');
-            const descEl = document.getElementById('deleteConfirmDesc');
-            const confirmBtn = document.getElementById('btnConfirmDeleteAction');
-
-            descEl.textContent = `"${t.deskripsi || 'Transaksi'}"`;
-            modal.classList.add('active'); // Use CSS class instead of display:flex
-
-            // Clear previous confirmation listeners by cloning the button
-            const newConfirmBtn = confirmBtn.cloneNode(true);
-            confirmBtn.replaceWith(newConfirmBtn);
-
-            newConfirmBtn.addEventListener('click', async () => {
-                newConfirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Hapus...';
-                newConfirmBtn.disabled = true;
-
-                const { error } = await sb.from('transactions').delete().eq('id', t.id);
-                newConfirmBtn.innerHTML = 'Hapus';
-                newConfirmBtn.disabled = false;
-
-                if (error) {
-                    alert('Gagal menghapus: ' + error.message);
-                    return;
-                }
-
-                await fetchAndRender();
-                closeDeleteConfirmModal();
-                closeDetailPage();
-            });
+            transactionIdToDelete = t.id;
+            document.getElementById('deleteConfirmDesc').textContent = `"${t.deskripsi || 'Transaksi'}"`;
+            document.getElementById('deleteConfirmModal').classList.add('active');
         });
     };
 
