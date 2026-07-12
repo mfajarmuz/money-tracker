@@ -609,7 +609,7 @@ async function initApp() {
             const confirmBtn = document.getElementById('btnConfirmDeleteAction');
 
             descEl.textContent = `"${t.deskripsi || 'Transaksi'}"`;
-            modal.style.display = 'flex';
+            modal.classList.add('active'); // Use CSS class instead of display:flex
 
             // Clear previous confirmation listeners by cloning the button
             const newConfirmBtn = confirmBtn.cloneNode(true);
