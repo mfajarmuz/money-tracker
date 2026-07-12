@@ -245,6 +245,87 @@
                 </section>
             </div>
 
+            <!-- View: Edit/Tambah Transaksi (Baru Sesuai Screenshot) -->
+            <div id="edit_transaction_view" class="view" style="background: #F5F7FA; min-height: 100vh;">
+                <header style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100;">
+                    <button type="button" onclick="closeEditPage()" style="background: none; border: none; font-size: 20px; color: #1e293b; cursor: pointer;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <h3 id="editPageTitle" style="font-size: 16px; font-weight: 700; color: #1e293b; margin: 0;">Edit Transaksi</h3>
+                    <button type="button" onclick="submitEditForm()" style="background: none; border: none; font-size: 15px; font-weight: 600; color: #3b82f6; cursor: pointer;">
+                        Simpan
+                    </button>
+                </header>
+
+                <div style="padding: 20px;">
+                    <!-- Segmented Control for Tipe -->
+                    <div style="display: flex; background: white; border-radius: 24px; padding: 4px; margin-bottom: 20px; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0;">
+                        <button type="button" id="btnEditTypePengeluaran" onclick="setEditPageType('pengeluaran')" style="flex: 1; padding: 12px; border: none; border-radius: 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.3s;">
+                            <i class="fa-solid fa-circle-minus"></i> Pengeluaran
+                        </button>
+                        <button type="button" id="btnEditTypePemasukan" onclick="setEditPageType('pemasukan')" style="flex: 1; padding: 12px; border: none; border-radius: 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.3s;">
+                            <i class="fa-solid fa-circle-plus"></i> Pemasukan
+                        </button>
+                    </div>
+
+                    <form id="editPageForm" class="modern-form" onsubmit="event.preventDefault();">
+                        <input type="hidden" id="editPageTxId" value="">
+                        <input type="hidden" id="editPageTxType" value="pengeluaran">
+                        <input type="hidden" id="editPageTxCategory" value="Lainnya">
+
+                        <!-- Jumlah -->
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 8px;">Jumlah</label>
+                            <div style="background: white; border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 18px; font-weight: 700; color: #1e293b;">Rp</span>
+                                <input type="text" id="editPageAmount" placeholder="0" style="border: none; width: 100%; font-size: 20px; font-weight: 700; color: #1e293b; outline: none; background: transparent;" oninput="formatEditPageAmount(this)">
+                            </div>
+                        </div>
+
+                        <!-- Kategori Grid -->
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 8px;">Kategori</label>
+                            <div class="category-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;" id="editPageCategoryGrid">
+                                <!-- Loaded dynamically via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Date & Time Row -->
+                        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                            <!-- Tanggal -->
+                            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 8px;">Tanggal</label>
+                                <div style="background: white; border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0;">
+                                    <i class="fa-solid fa-calendar" style="color: #3b82f6;"></i>
+                                    <input type="date" id="editPageDate" style="border: none; width: 100%; font-size: 14px; color: #1e293b; outline: none; background: transparent; font-family: inherit;">
+                                </div>
+                            </div>
+                            <!-- Waktu -->
+                            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 8px;">Waktu</label>
+                                <div style="background: white; border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0;">
+                                    <i class="fa-solid fa-clock" style="color: #3b82f6;"></i>
+                                    <input type="time" id="editPageTime" style="border: none; width: 100%; font-size: 14px; color: #1e293b; outline: none; background: transparent; font-family: inherit;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Keterangan -->
+                        <div class="form-group" style="margin-bottom: 28px;">
+                            <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 8px;">Keterangan (opsional)</label>
+                            <div style="background: white; border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0;">
+                                <input type="text" id="editPageDescription" placeholder="Tulis keterangan di sini..." style="border: none; width: 100%; font-size: 14px; color: #1e293b; outline: none; background: transparent;">
+                            </div>
+                        </div>
+
+                        <!-- Bottom Button -->
+                        <button type="button" id="editPageSubmitBtn" onclick="submitEditForm()" class="btn-primary" style="background: #3b82f6; color: white; width: 100%; border-radius: 16px; font-weight: 600; padding: 16px 0; font-size: 15px; border: none; cursor: pointer; box-shadow: var(--shadow-sm); display: block;">
+                            Simpan Perubahan
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <!-- View: Laporan -->
             <div id="laporan" class="view">
                 <section class="top-section minimal">
@@ -631,6 +712,20 @@
                 document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => nav.classList.remove('active'));
                 navItem.classList.add('active');
             }
+        }
+
+        // Close Edit Page view
+        function closeEditPage() {
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            document.getElementById('detail_transaksi').classList.add('active');
+        }
+
+        // Real-time currency format helper for input
+        function formatEditPageAmount(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value === '') value = '0';
+            const num = parseInt(value, 10);
+            input.value = num.toLocaleString('id-ID');
         }
     </script>
 </body>

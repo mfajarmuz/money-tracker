@@ -599,10 +599,8 @@ async function initApp() {
         delBtn.replaceWith(newDelBtn);
 
         newEditBtn.addEventListener('click', () => {
-            // First close detail page back to normal
-            closeDetailPage();
-            // Then open numpad edit modal
-            openEditTransactionModal(t);
+            // Open full-screen Edit Page view instead of numpad modal
+            openEditTransactionPage(t);
         });
 
         newDelBtn.addEventListener('click', async () => {
@@ -622,6 +620,150 @@ async function initApp() {
             await fetchAndRender();
             closeDetailPage();
         });
+    };
+
+    // Global function to open NEW Edit Page view (matching screenshot)
+    window.openEditTransactionPage = function(t) {
+        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+        document.getElementById('edit_transaction_view').classList.add('active');
+
+        // Setup form values
+        document.getElementById('editPageTxId').value = t.id;
+        document.getElementById('editPageAmount').value = Number(t.nominal || 0).toLocaleString('id-ID');
+        document.getElementById('editPageDescription').value = t.deskripsi === 'Tanpa Keterangan' ? '' : (t.deskripsi || '');
+        
+        const txDate = new Date(t.created_at);
+        const yyyy = txDate.getFullYear();
+        const mm = String(txDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(txDate.getDate()).padStart(2, '0');
+        const hh = String(txDate.getHours()).padStart(2, '0');
+        const min = String(txDate.getMinutes()).padStart(2, '0');
+        
+        document.getElementById('editPageDate').value = `${yyyy}-${mm}-${dd}`;
+        document.getElementById('editPageTime').value = `${hh}:${min}`;
+
+        // Set type
+        setEditPageType(t.tipe || 'pengeluaran');
+
+        // Render Category Grid with Icons
+        renderEditPageCategoryGrid(t.kategori || 'Lainnya');
+    };
+
+    // Helper for segmented control type switcher
+    window.setEditPageType = function(type) {
+        document.getElementById('editPageTxType').value = type;
+        const btnPengeluaran = document.getElementById('btnEditTypePengeluaran');
+        const btnPemasukan = document.getElementById('btnEditTypePemasukan');
+
+        if (type === 'pengeluaran') {
+            btnPengeluaran.style.cssText = 'flex:1;padding:12px;border:none;border-radius:20px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:#ef4444;color:white;';
+            btnPemasukan.style.cssText = 'flex:1;padding:12px;border:none;border-radius:20px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:transparent;color:#64748b;';
+        } else {
+            btnPengeluaran.style.cssText = 'flex:1;padding:12px;border:none;border-radius:20px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:transparent;color:#64748b;';
+            btnPemasukan.style.cssText = 'flex:1;padding:12px;border:none;border-radius:20px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:#3b82f6;color:white;';
+        }
+    };
+
+    // Category Grid Renderer with matching icons
+    function renderEditPageCategoryGrid(selectedCategory) {
+        const gridEl = document.getElementById('editPageCategoryGrid');
+        if (!gridEl) return;
+        gridEl.innerHTML = '';
+
+        // Default categories with predefined icons
+        const iconMapping = {
+            'makanan': 'fa-utensils',
+            'belanja': 'fa-bag-shopping',
+            'hiburan': 'fa-ticket',
+            'tagihan': 'fa-file-invoice-dollar',
+            'transportasi': 'fa-car',
+            'gaji': 'fa-money-bill-wave'
+        };
+
+        // Standardize local names to icons
+        const getIconClass = (name) => {
+            const lower = String(name).toLowerCase();
+            return iconMapping[lower] || 'fa-ellipsis';
+        };
+
+        categories.forEach(cat => {
+            const isSelected = cat.nama === selectedCategory;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:left;';
+            
+            if (isSelected) {
+                btn.style.cssText += 'background:rgba(59,130,246,0.06);border:1.5px solid #3b82f6;color:#3b82f6;';
+            } else {
+                btn.style.cssText += 'background:white;border:1.5px solid #e2e8f0;color:#64748b;';
+            }
+
+            const icon = document.createElement('i');
+            icon.className = `fa-solid ${getIconClass(cat.nama)}`;
+            icon.style.fontSize = '14px';
+            
+            const text = document.createElement('span');
+            text.textContent = cat.nama;
+
+            btn.append(icon, text);
+
+            btn.addEventListener('click', () => {
+                document.getElementById('editPageTxCategory').value = cat.nama;
+                renderEditPageCategoryGrid(cat.nama);
+            });
+
+            gridEl.appendChild(btn);
+        });
+
+        // Store selected category value
+        document.getElementById('editPageTxCategory').value = selectedCategory;
+    }
+
+    // Submit Action for the Edit Page View
+    window.submitEditForm = async function() {
+        const id = document.getElementById('editPageTxId').value;
+        const amountRaw = document.getElementById('editPageAmount').value;
+        const nominal = Number(amountRaw.replace(/\D/g, ''));
+        const tipe = document.getElementById('editPageTxType').value;
+        const kategori = document.getElementById('editPageTxCategory').value;
+        const deskripsi = document.getElementById('editPageDescription').value.trim() || 'Tanpa Keterangan';
+        
+        const dateVal = document.getElementById('editPageDate').value;
+        const timeVal = document.getElementById('editPageTime').value;
+
+        if (isNaN(nominal) || nominal <= 0) {
+            alert('Nominal tidak valid!');
+            return;
+        }
+
+        const submitBtn = document.getElementById('editPageSubmitBtn');
+        submitBtn.textContent = 'Menyimpan...';
+        submitBtn.disabled = true;
+
+        // Construct ISO Date with timezone offset compatibility
+        const created_at = new Date(`${dateVal}T${timeVal}:00`).toISOString();
+
+        const { error } = await sb.from('transactions').update({
+            deskripsi, nominal, tipe, kategori, created_at
+        }).eq('id', id);
+
+        submitBtn.textContent = 'Simpan Perubahan';
+        submitBtn.disabled = false;
+
+        if (error) {
+            alert('Gagal menyimpan: ' + error.message);
+            return;
+        }
+
+        await fetchAndRender();
+        
+        // Return to Detail page and update its display
+        const { data: updatedTx } = await sb.from('transactions').select('*').eq('id', id).single();
+        if (updatedTx) {
+            openTransactionDetailPage(updatedTx);
+        } else {
+            closeDetailPage();
+        }
     };
 
     // Global function to open modal in EDIT mode
