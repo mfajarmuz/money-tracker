@@ -919,32 +919,48 @@ async function initApp() {
 // === GLOBAL ADVANCED HISTORY FILTER LOGIC ===
 window.filterHistoryList = () => {
     const queryEl = document.getElementById('searchKeterangan');
-    const waktuEl = document.getElementById('filterWaktu');
     const kategoriEl = document.getElementById('filterKategori');
-    if (!queryEl || !waktuEl || !kategoriEl) return;
+    const tahunEl = document.getElementById('filterTahun');
+    const bulanEl = document.getElementById('filterBulan');
+    const tanggalEl = document.getElementById('filterTanggal');
+    
+    if (!queryEl || !kategoriEl || !tahunEl || !bulanEl || !tanggalEl) return;
 
     const query = queryEl.value.toLowerCase().trim();
-    const waktu = waktuEl.value;
     const kategori = kategoriEl.value;
+    const tahun = tahunEl.value;
+    const bulan = bulanEl.value;
+    const tanggal = tanggalEl.value; // YYYY-MM-DD format
+    
     const listBody = document.getElementById('filterHistoryTableBody');
     if (!listBody) return;
     listBody.innerHTML = '';
 
-    const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-    const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
     const dataList = window.transactions || [];
 
     const filtered = dataList.filter(t => {
         const matchQuery = t.deskripsi.toLowerCase().includes(query);
         const matchCat = (kategori === 'all') || (t.kategori === kategori);
-        const txTime = new Date(t.created_at).getTime();
-        let matchTime = true;
-        if (waktu === 'today') matchTime = txTime >= startOfDay;
-        else if (waktu === 'month') matchTime = txTime >= startOfMonth;
-        else if (waktu === 'year') matchTime = txTime >= startOfYear;
-        return matchQuery && matchCat && matchTime;
+        
+        const txDate = new Date(t.created_at);
+        
+        // Filter Tahun
+        const matchTahun = (tahun === 'all') || (txDate.getFullYear().toString() === tahun);
+        
+        // Filter Bulan
+        const matchBulan = (bulan === 'all') || (txDate.getMonth().toString() === bulan);
+        
+        // Filter Hari / Tanggal Spesifik
+        let matchTanggal = true;
+        if (tanggal) {
+            const yyyy = txDate.getFullYear();
+            const mm = String(txDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(txDate.getDate()).padStart(2, '0');
+            const formattedTxDate = `${yyyy}-${mm}-${dd}`;
+            matchTanggal = formattedTxDate === tanggal;
+        }
+
+        return matchQuery && matchCat && matchTahun && matchBulan && matchTanggal;
     });
 
     if (filtered.length === 0) {
