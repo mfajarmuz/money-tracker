@@ -9,8 +9,57 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Main Content -->
-        <main class="main-content">
+
+        <!-- View: Login/Register -->
+        <div id="authScreen" class="auth-screen">
+            <div class="auth-card">
+                <div class="auth-logo">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <h1 class="auth-title">Money Tracker</h1>
+                <p class="auth-subtitle">Catat keuangan pribadimu</p>
+
+                <div class="auth-tabs">
+                    <button type="button" class="auth-tab active" data-tab="login">Masuk</button>
+                    <button type="button" class="auth-tab" data-tab="register">Daftar</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form">
+                    <div class="auth-input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="loginEmail" placeholder="Username" required autocomplete="username">
+                    </div>
+                    <div class="auth-input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
+                    </div>
+                    <p id="loginError" class="auth-error"></p>
+                    <button type="submit" class="btn-primary w-100" id="loginBtn">Masuk</button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="auth-form" style="display:none;">
+                    <div class="auth-input-group">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="regEmail" placeholder="Username" required autocomplete="username">
+                    </div>
+                    <div class="auth-input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="regPassword" placeholder="Password (min 6 karakter)" required minlength="6" autocomplete="new-password">
+                    </div>
+                    <div class="auth-input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="regPasswordConfirm" placeholder="Konfirmasi Password" required minlength="6" autocomplete="new-password">
+                    </div>
+                    <p id="registerError" class="auth-error"></p>
+                    <button type="submit" class="btn-primary w-100" id="regBtn">Daftar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content (hidden until logged in) -->
+        <main class="main-content" id="mainContent" style="display:none;">
             <!-- View: Dashboard -->
             <div id="dashboard" class="view active">
                 
@@ -238,12 +287,20 @@
                             <i class="fa-solid fa-trash-can" style="margin-right: 8px;"></i> Hapus Semua Transaksi
                         </button>
                     </div>
+
+                    <div class="settings-section card" style="background: white; padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+                        <h3>Akun</h3>
+                        <p id="currentUserEmail" style="color: var(--clr-text-muted); font-size: 13px; margin: 8px 0 16px 0;"></p>
+                        <button type="button" onclick="logoutUser()" class="btn-primary" style="background: #64748b; width: 100%; border-radius: 8px; color: white;">
+                            <i class="fa-solid fa-right-from-bracket" style="margin-right: 8px;"></i> Logout
+                        </button>
+                    </div>
                 </section>
             </div>
         </main>
 
         <!-- BOTTOM NAVIGATION BAR -->
-        <nav class="bottom-nav">
+        <nav class="bottom-nav" id="bottomNav" style="display:none;">
             <div class="nav-item active" data-target="dashboard">
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
@@ -311,6 +368,7 @@
             
             <form id="transactionForm" class="modern-form numpad-form">
                 <input type="hidden" id="nominal" name="nominal" value="0">
+                <input type="hidden" id="editingId" name="editingId" value="">
                 
                 <div class="scrollable-middle">
 <!-- Category Selector -->
@@ -347,7 +405,10 @@
                 </div>
 
                 <!-- Action Button -->
-                <button type="button" id="saveTransactionBtn" class="btn-primary btn-save-numpad w-100 mt-4 disabled" disabled>Simpan Transaksi</button>
+                <div class="modal-actions" style="display: flex; gap: 12px; margin-top: 24px; margin-bottom: 25px;">
+                    <button type="button" id="deleteTransactionBtn" class="btn-primary" style="background: var(--clr-expense); flex: 1; display: none;">Hapus</button>
+                    <button type="button" id="saveTransactionBtn" class="btn-primary btn-save-numpad disabled" style="flex: 2; margin: 0 !important;" disabled>Simpan Transaksi</button>
+                </div>
             </form>
         </div>
     </div>
@@ -392,8 +453,11 @@
 
         function closeTransactionModal() {
             document.getElementById('transactionModal').classList.remove('active');
-            
-            // Re-render categories logic handled by app.js (optional)
+            // Reset edit state
+            document.getElementById('editingId').value = "";
+            document.getElementById('deleteTransactionBtn').style.display = "none";
+            const saveBtn = document.getElementById('saveTransactionBtn');
+            saveBtn.textContent = "Simpan Transaksi";
         }
 
         function updateFormType(type) {

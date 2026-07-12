@@ -24,6 +24,126 @@
     --shadow-lg: 0 16px 32px rgba(15, 23, 42, 0.15);
 }
 
+/* ========================
+   AUTH SCREEN
+======================== */
+.auth-screen {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--clr-dark-green) 0%, #1E3A5F 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.auth-card {
+    background: var(--clr-white);
+    border-radius: var(--radius-lg);
+    padding: 40px 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+}
+
+.auth-logo {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--clr-light-green), var(--clr-neon-green));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 28px;
+    color: white;
+}
+
+.auth-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--clr-text-main);
+    margin-bottom: 4px;
+}
+
+.auth-subtitle {
+    font-size: 14px;
+    color: var(--clr-text-muted);
+    margin-bottom: 28px;
+}
+
+.auth-tabs {
+    display: flex;
+    background: #F3F4F6;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 24px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--clr-text-muted);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.auth-tab.active {
+    background: white;
+    color: var(--clr-light-green);
+    box-shadow: var(--shadow-sm);
+}
+
+.auth-form {
+    text-align: left;
+}
+
+.auth-input-group {
+    display: flex;
+    align-items: center;
+    background: #F3F4F6;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.auth-input-group:focus-within {
+    border-color: var(--clr-light-green);
+    background: white;
+}
+
+.auth-input-group i {
+    color: var(--clr-text-muted);
+    margin-right: 12px;
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.auth-input-group input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 15px;
+    color: var(--clr-text-main);
+}
+
+.auth-error {
+    color: var(--clr-expense);
+    font-size: 13px;
+    min-height: 20px;
+    margin: 4px 0 8px;
+    text-align: center;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -1311,7 +1431,7 @@ body {
     padding-bottom: 15px;
 }
 
-.btn-primary.w-100 {
+.modal-actions {
     flex-shrink: 0;
     margin-top: 10px;
     margin-bottom: 25px;
