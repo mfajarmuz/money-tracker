@@ -189,11 +189,14 @@ if (googleBtn) {
 
 // Check existing session on load
 (async function initAuth() {
+    // Check if we are returning from a Google OAuth redirect (hash contains tokens)
+    const isOAuthCallback = window.location.hash && (window.location.hash.includes('access_token=') || window.location.hash.includes('error='));
+
     // Check if we need to load a specific user session from multi-login on startup
     const currentUserId = localStorage.getItem('mt_current_user_id');
     const sessions = getStoredSessions();
 
-    if (currentUserId && sessions.length > 0) {
+    if (!isOAuthCallback && currentUserId && sessions.length > 0) {
         const currentSession = sessions.find(s => s.user.id === currentUserId);
         if (currentSession) {
             await sb.auth.setSession({
