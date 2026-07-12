@@ -152,6 +152,99 @@
                 </section>
             </div>
 
+            <!-- View: Detail Transaksi -->
+            <div id="detail_transaksi" class="view">
+                <section class="top-section" id="detailHeaderSection" style="text-align: center; padding: 32px 24px; border-bottom-left-radius: 32px; border-bottom-right-radius: 32px;">
+                    <header class="page-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 24px;">
+                        <button type="button" onclick="closeDetailPage()" class="btn-primary" style="padding: 6px 12px; font-size: 12px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 8px;">
+                            <i class="fa-solid fa-arrow-left"></i> Kembali
+                        </button>
+                        <h3 style="color: white; margin: 0; font-size: 16px;">Detail Transaksi</h3>
+                        <div style="width: 70px;"></div> <!-- Spacer -->
+                    </header>
+                    <h1 id="detailAmount" style="font-size: 36px; font-weight: 700; color: white; margin-bottom: 8px;">Rp 0</h1>
+                    <span id="detailTypeBadge" class="type-badge" style="background: rgba(255,255,255,0.2); color: white; padding: 4px 16px; border-radius: 100px; font-size: 12px; font-weight: 600;">Pengeluaran</span>
+                </section>
+
+                <section class="bottom-section full" style="margin-top: -16px; padding: 0 16px;">
+                    <!-- Main Details Card -->
+                    <div class="card" style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: 12px 16px; margin-bottom: 16px;">
+                        
+                        <!-- Kategori Row -->
+                        <div class="detail-row" style="display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+                            <div class="detail-icon-wrapper" style="width: 40px; height: 40px; border-radius: 8px; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin-right: 12px; color: #3b82f6;">
+                                <i class="fa-solid fa-tags"></i>
+                            </div>
+                            <div>
+                                <span style="font-size: 11px; color: var(--clr-text-muted); display: block;">Kategori</span>
+                                <strong id="detailCategory" style="font-size: 14px; color: var(--clr-text-main); font-weight: 600;">Lainnya</strong>
+                            </div>
+                        </div>
+
+                        <!-- Tanggal Row -->
+                        <div class="detail-row" style="display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+                            <div class="detail-icon-wrapper" style="width: 40px; height: 40px; border-radius: 8px; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin-right: 12px; color: #3b82f6;">
+                                <i class="fa-solid fa-calendar-days"></i>
+                            </div>
+                            <div>
+                                <span style="font-size: 11px; color: var(--clr-text-muted); display: block;">Tanggal</span>
+                                <strong id="detailDate" style="font-size: 14px; color: var(--clr-text-main); font-weight: 600;">Jumat, 10 Juli 2026</strong>
+                            </div>
+                        </div>
+
+                        <!-- Waktu Row -->
+                        <div class="detail-row" style="display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+                            <div class="detail-icon-wrapper" style="width: 40px; height: 40px; border-radius: 8px; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin-right: 12px; color: #3b82f6;">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div>
+                                <span style="font-size: 11px; color: var(--clr-text-muted); display: block;">Waktu</span>
+                                <strong id="detailTime" style="font-size: 14px; color: var(--clr-text-main); font-weight: 600;">15:43</strong>
+                            </div>
+                        </div>
+
+                        <!-- Keterangan Row -->
+                        <div class="detail-row" style="display: flex; align-items: center; padding: 14px 0;">
+                            <div class="detail-icon-wrapper" style="width: 40px; height: 40px; border-radius: 8px; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin-right: 12px; color: #3b82f6;">
+                                <i class="fa-solid fa-align-left"></i>
+                            </div>
+                            <div>
+                                <span style="font-size: 11px; color: var(--clr-text-muted); display: block;">Keterangan</span>
+                                <strong id="detailDescription" style="font-size: 14px; color: var(--clr-text-main); font-weight: 600;">-</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metadata Card -->
+                    <div class="card" style="background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: 16px; margin-bottom: 24px;">
+                        <h4 style="font-size: 13px; color: var(--clr-text-muted); margin-bottom: 12px;">Informasi Lainnya</h4>
+                        
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                            <span style="color: var(--clr-text-muted);">ID Transaksi</span>
+                            <span id="metaTxId" style="color: var(--clr-text-main); font-weight: 500;">#0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                            <span style="color: var(--clr-text-muted);">Status Sync</span>
+                            <span style="color: #10b981; font-weight: 600;">Tersinkron <i class="fa-solid fa-cloud-arrow-up"></i></span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                            <span style="color: var(--clr-text-muted);">Dibuat pada</span>
+                            <span id="metaCreatedAt" style="color: var(--clr-text-main); font-weight: 500;">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 12px; margin-bottom: 40px;">
+                        <button type="button" id="detailDeleteBtn" class="btn-primary" style="background: white; border: 1.5px solid var(--clr-expense); color: var(--clr-expense); flex: 1; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 14px 0;">
+                            <i class="fa-solid fa-trash-can"></i> Hapus
+                        </button>
+                        <button type="button" id="detailEditBtn" class="btn-primary" style="background: #3b82f6; color: white; flex: 2; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 14px 0;">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit Transaksi
+                        </button>
+                    </div>
+                </section>
+            </div>
+
             <!-- View: Laporan -->
             <div id="laporan" class="view">
                 <section class="top-section minimal">
@@ -520,6 +613,25 @@
                 closeTransactionModal();
             }
         });
+
+        // Global functions for Detail Page back navigation
+        let previousActiveViewId = 'dashboard';
+        function closeDetailPage() {
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            const prevView = document.getElementById(previousActiveViewId);
+            if (prevView) {
+                prevView.classList.add('active');
+            } else {
+                document.getElementById('dashboard').classList.add('active');
+            }
+            
+            // Re-sync bottom nav active state if returning to nav tabs
+            const navItem = document.querySelector(`.bottom-nav .nav-item[data-target="${previousActiveViewId}"]`);
+            if (navItem) {
+                document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => nav.classList.remove('active'));
+                navItem.classList.add('active');
+            }
+        }
     </script>
 </body>
 </html>

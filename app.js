@@ -354,12 +354,11 @@ async function initApp() {
                 tdNom.textContent = formatter.format(t.nominal);
                 tdNom.style.cssText = 'font-weight:700;font-size:15px;color:' + (tTipe === 'pemasukan' ? '#10B981' : '#EF4444') + ';margin-right:12px;';
 
-                // Make row clickable to edit
+                // Make row clickable to open details page
                 tr.style.cursor = 'pointer';
                 tr.addEventListener('click', (e) => {
-                    // Ignore clicks on delete button if any
                     if (e.target.closest('button')) return;
-                    openEditTransactionModal(t);
+                    openTransactionDetailPage(t);
                 });
 
                 tr.append(iconWrapper, textWrapper, tdNom);
@@ -543,6 +542,88 @@ async function initApp() {
     const saveBtn = document.getElementById('saveTransactionBtn');
     const deleteBtn = document.getElementById('deleteTransactionBtn');
     
+    // Global function to open details page
+    window.openTransactionDetailPage = function(t) {
+        // Record current active view before transitioning so we can navigate back correctly
+        const currentActiveView = document.querySelector('.view.active');
+        if (currentActiveView && currentActiveView.id !== 'detail_transaksi') {
+            window.previousActiveViewId = currentActiveView.id;
+        }
+
+        // Hide other views, show detail view
+        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+        document.getElementById('detail_transaksi').classList.add('active');
+
+        // Format Date
+        const txDate = new Date(t.created_at);
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const formattedDate = `${days[txDate.getDay()]}, ${txDate.getDate()} ${months[txDate.getMonth()]} ${txDate.getFullYear()}`;
+        const formattedTime = txDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        // Update Text Content
+        const amountEl = document.getElementById('detailAmount');
+        const badgeEl = document.getElementById('detailTypeBadge');
+        const headerSec = document.getElementById('detailHeaderSection');
+        
+        const isIncome = String(t.tipe).toLowerCase() === 'pemasukan';
+        amountEl.textContent = (isIncome ? '+' : '-') + formatter.format(t.nominal);
+        badgeEl.textContent = isIncome ? 'Pemasukan' : 'Pengeluaran';
+
+        if (isIncome) {
+            headerSec.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+            badgeEl.style.background = 'rgba(255, 255, 255, 0.2)';
+        } else {
+            headerSec.style.background = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
+            badgeEl.style.background = 'rgba(255, 255, 255, 0.2)';
+        }
+
+        document.getElementById('detailCategory').textContent = t.kategori || 'Lainnya';
+        document.getElementById('detailDate').textContent = formattedDate;
+        document.getElementById('detailTime').textContent = formattedTime;
+        document.getElementById('detailDescription').textContent = t.deskripsi || 'Tanpa Keterangan';
+        
+        // Metadata
+        const shortId = t.id ? '#' + t.id.substring(0, 8).toUpperCase() : '#-';
+        document.getElementById('metaTxId').textContent = shortId;
+        document.getElementById('metaCreatedAt').textContent = `${formattedDate}, ${formattedTime}`;
+
+        // Rebind Action Buttons inside Detail Page
+        const editBtn = document.getElementById('detailEditBtn');
+        const delBtn = document.getElementById('detailDeleteBtn');
+
+        // Clear existing listeners by replacing buttons
+        const newEditBtn = editBtn.cloneNode(true);
+        const newDelBtn = delBtn.cloneNode(true);
+        editBtn.replaceWith(newEditBtn);
+        delBtn.replaceWith(newDelBtn);
+
+        newEditBtn.addEventListener('click', () => {
+            // First close detail page back to normal
+            closeDetailPage();
+            // Then open numpad edit modal
+            openEditTransactionModal(t);
+        });
+
+        newDelBtn.addEventListener('click', async () => {
+            if (!confirm(`Hapus transaksi "${t.deskripsi || 'Transaksi'}"?`)) return;
+            newDelBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Hapus...';
+            newDelBtn.disabled = true;
+
+            const { error } = await sb.from('transactions').delete().eq('id', t.id);
+            newDelBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Hapus';
+            newDelBtn.disabled = false;
+
+            if (error) {
+                alert('Gagal menghapus: ' + error.message);
+                return;
+            }
+
+            await fetchAndRender();
+            closeDetailPage();
+        });
+    };
+
     // Global function to open modal in EDIT mode
     window.openEditTransactionModal = function(t) {
         const modal = document.getElementById('transactionModal');
@@ -730,11 +811,11 @@ window.filterHistoryList = () => {
         nom.textContent = fmt.format(t.nominal);
         nom.style.cssText = 'font-weight:700;font-size:15px;color:' + (tipeIcon === 'pemasukan' ? '#10B981' : '#EF4444') + ';margin-right:12px;';
 
-        // Make row clickable to edit
+        // Make row clickable to open details page
         tr.style.cursor = 'pointer';
         tr.addEventListener('click', (e) => {
             if (e.target.closest('button')) return;
-            openEditTransactionModal(t);
+            openTransactionDetailPage(t);
         });
 
         tr.append(icon, details, nom);
