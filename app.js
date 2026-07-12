@@ -318,12 +318,17 @@ async function initApp() {
         let totalPemasukan = 0;
         let totalPengeluaran = 0;
 
+        // Calculate overall totals from all transactions
         transactions.forEach(t => {
             const nominalAngka = Number(t.nominal) || 0;
             const tTipe = String(t.tipe).toLowerCase();
-
             if (tTipe === 'pemasukan') totalPemasukan += nominalAngka;
             else totalPengeluaran += nominalAngka;
+        });
+
+        // Render only the first 6 recent transactions to the dashboard list
+        transactions.slice(0, 6).forEach(t => {
+            const tTipe = String(t.tipe).toLowerCase();
 
             if (tableBody) {
                 const tr = document.createElement('div');
