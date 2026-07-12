@@ -10,7 +10,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ===========================
 // AUTH
-// ===========================
+// Wrap all DOM-dependent code
 document.addEventListener('DOMContentLoaded', () => {
 
 function showAuthScreen() {
@@ -24,97 +24,31 @@ function showApp(user) {
     document.getElementById('mainContent').style.display = '';
     document.getElementById('bottomNav').style.display = '';
     const emailEl = document.getElementById('currentUserEmail');
-    if (emailEl) emailEl.textContent = 'Login sebagai: ' + (user.user_metadata?.username || user.email?.replace('@mt.user.com', '') || '');
+    if (emailEl) emailEl.textContent = 'Login sebagai: ' + (user.email || '');
     initApp();
 }
 
-// Auth tab switching
-document.querySelectorAll('.auth-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const target = tab.dataset.tab;
-        document.getElementById('loginForm').style.display = target === 'login' ? '' : 'none';
-        document.getElementById('registerForm').style.display = target === 'register' ? '' : 'none';
-        document.getElementById('loginError').textContent = '';
-        document.getElementById('registerError').textContent = '';
-    });
-});
-
-// Helper: username → fake email for Supabase Auth
-function toEmail(username) { return username.toLowerCase().trim() + '@mt.user.com'; }
-function toUsername(email) { return (email || '').replace('@mt.user.com', ''); }
-
-// Login
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    const errEl = document.getElementById('loginError');
-    const btn = document.getElementById('loginBtn');
-    errEl.textContent = '';
-    btn.disabled = true;
-    btn.textContent = 'Memproses...';
-
-    const { data, error } = await sb.auth.signInWithPassword({ email: toEmail(username), password });
-    btn.disabled = false;
-    btn.textContent = 'Masuk';
-
-    if (error) {
-        errEl.textContent = error.message === 'Invalid login credentials'
-            ? 'Username atau password salah'
-            : error.message;
-        return;
-    }
-    showApp(data.user);
-});
-
-// Register
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('regEmail').value.trim();
-    const password = document.getElementById('regPassword').value;
-    const confirmPw = document.getElementById('regPasswordConfirm').value;
-    const errEl = document.getElementById('registerError');
-    const btn = document.getElementById('regBtn');
-    errEl.textContent = '';
-
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-        errEl.textContent = 'Username hanya boleh huruf, angka, dan underscore';
-        return;
-    }
-
-    if (password !== confirmPw) {
-        errEl.textContent = 'Password tidak sama';
-        return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Memproses...';
-
-    const { data, error } = await sb.auth.signUp({
-        email: toEmail(username),
-        password,
-        options: { data: { username } }
-    });
-    btn.disabled = false;
-    btn.textContent = 'Daftar';
-
-    if (error) {
-        if (error.message.includes('already registered')) {
-            errEl.textContent = 'Username sudah dipakai';
-        } else {
-            errEl.textContent = error.message;
+// Google Login Event Listener
+const googleBtn = document.getElementById('googleLoginBtn');
+if (googleBtn) {
+    googleBtn.addEventListener('click', async () => {
+        googleBtn.disabled = true;
+        googleBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menghubungkan...';
+        
+        const { error } = await sb.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + window.location.pathname
+            }
+        });
+        
+        if (error) {
+            alert('Gagal login dengan Google: ' + error.message);
+            googleBtn.disabled = false;
+            googleBtn.innerHTML = '<i class="fa-brands fa-google" style="color: #ea4335; font-size: 18px;"></i> Masuk dengan Google';
         }
-        return;
-    }
-
-    if (data.user && data.session) {
-        showApp(data.user);
-    } else {
-        showApp(data.user);
-    }
-});
+    });
+}
 
 // Check existing session on load
 (async function initAuth() {
@@ -126,7 +60,11 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     }
 
     sb.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT') showAuthScreen();
+        if (event === 'SIGNED_IN') {
+            showApp(session.user);
+        } else if (event === 'SIGNED_OUT') {
+            showAuthScreen();
+        }
     });
 })();
 

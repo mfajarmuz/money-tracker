@@ -19,42 +19,10 @@
                 <h1 class="auth-title">Money Tracker</h1>
                 <p class="auth-subtitle">Catat keuangan pribadimu</p>
 
-                <div class="auth-tabs">
-                    <button type="button" class="auth-tab active" data-tab="login">Masuk</button>
-                    <button type="button" class="auth-tab" data-tab="register">Daftar</button>
-                </div>
-
-                <!-- Login Form -->
-                <form id="loginForm" class="auth-form">
-                    <div class="auth-input-group">
-                        <i class="fa-solid fa-user"></i>
-                        <input type="text" id="loginEmail" placeholder="Username" required autocomplete="username">
-                    </div>
-                    <div class="auth-input-group">
-                        <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
-                    </div>
-                    <p id="loginError" class="auth-error"></p>
-                    <button type="submit" class="btn-primary w-100" id="loginBtn">Masuk</button>
-                </form>
-
-                <!-- Register Form -->
-                <form id="registerForm" class="auth-form" style="display:none;">
-                    <div class="auth-input-group">
-                        <i class="fa-solid fa-user"></i>
-                        <input type="text" id="regEmail" placeholder="Username" required autocomplete="username">
-                    </div>
-                    <div class="auth-input-group">
-                        <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="regPassword" placeholder="Password (min 6 karakter)" required minlength="6" autocomplete="new-password">
-                    </div>
-                    <div class="auth-input-group">
-                        <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="regPasswordConfirm" placeholder="Konfirmasi Password" required minlength="6" autocomplete="new-password">
-                    </div>
-                    <p id="registerError" class="auth-error"></p>
-                    <button type="submit" class="btn-primary w-100" id="regBtn">Daftar</button>
-                </form>
+                <!-- Google Login Button -->
+                <button type="button" id="googleLoginBtn" class="btn-primary w-100" style="background: white; color: #1e293b; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 12px; font-weight: 600; box-shadow: var(--shadow-sm); transition: background 0.2s;">
+                    <i class="fa-brands fa-google" style="color: #ea4335; font-size: 18px;"></i> Masuk dengan Google
+                </button>
             </div>
         </div>
 
