@@ -1006,6 +1006,185 @@ window.filterHistoryList = () => {
 };
 
 // === GLOBAL EXPORT & RESET ===
+window.exportToPDF = async () => {
+    const startInput = document.getElementById('pdfStartDate').value;
+    const endInput = document.getElementById('pdfEndDate').value;
+
+    if (!startInput || !endInput) {
+        alert("Pilih rentang tanggal mulai dan selesai terlebih dahulu!");
+        return;
+    }
+
+    const startDate = new Date(startInput + 'T00:00:00');
+    const endDate = new Date(endInput + 'T23:59:59');
+
+    if (endDate < startDate) {
+        alert("Tanggal selesai tidak boleh mendahului tanggal mulai!");
+        return;
+    }
+
+    const allData = window.transactions || [];
+    
+    // Filter & Sort chronological (ascending) for bank statement running balance
+    const filtered = allData.filter(t => {
+        const txTime = new Date(t.created_at);
+        return txTime >= startDate && txTime <= endDate;
+    }).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    if (filtered.length === 0) {
+        alert("Tidak ada transaksi pada rentang tanggal tersebut!");
+        return;
+    }
+
+    // Initialize jsPDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Fetch user details for statement header
+    const { data: { user } } = await sb.auth.getUser();
+    const userEmail = user ? user.email : 'User';
+
+    // Format Dates for header
+    const formatStatementDate = (dStr) => {
+        const d = new Date(dStr);
+        return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
+
+    // 1. PDF Title & Bank Header Style
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(15, 23, 42); // slate-900
+    doc.text("REKENING KORAN", 14, 20);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139); // slate-500
+    doc.text("Laporan Mutasi Keuangan Pribadi", 14, 25);
+
+    // Divider Line
+    doc.setDrawColor(226, 232, 240); // slate-200
+    doc.setLineWidth(0.5);
+    doc.line(14, 29, 196, 29);
+
+    // 2. Metadata Info Grid
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text("Pemilik Rekening:", 14, 36);
+    doc.setFont("helvetica", "normal");
+    doc.text(userEmail, 45, 36);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Periode Laporan:", 14, 42);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${formatStatementDate(startDate)} - ${formatStatementDate(endDate)}`, 45, 42);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Tanggal Cetak:", 14, 48);
+    doc.setFont("helvetica", "normal");
+    doc.text(new Date().toLocaleString('id-ID'), 45, 48);
+
+    // 3. Process Transaction Rows & Calculate Balances
+    let runningBalance = 0;
+    let totalDebit = 0; // Income
+    let totalKredit = 0; // Expense
+
+    const tableRows = filtered.map((t, index) => {
+        const nominal = Number(t.nominal) || 0;
+        const isIncome = String(t.tipe).toLowerCase() === 'pemasukan';
+        
+        let debitStr = "-";
+        let kreditStr = "-";
+
+        if (isIncome) {
+            runningBalance += nominal;
+            totalDebit += nominal;
+            debitStr = "Rp " + nominal.toLocaleString('id-ID');
+        } else {
+            runningBalance -= nominal;
+            totalKredit += nominal;
+            kreditStr = "Rp " + nominal.toLocaleString('id-ID');
+        }
+
+        const tDate = new Date(t.created_at);
+        const formattedTxDate = tDate.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' }) + ' ' + tDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        return [
+            index + 1,
+            formattedTxDate,
+            t.deskripsi || 'Tanpa Keterangan',
+            t.kategori || 'Lainnya',
+            debitStr,
+            kreditStr,
+            "Rp " + runningBalance.toLocaleString('id-ID')
+        ];
+    });
+
+    // 4. Render Table using AutoTable plugin
+    doc.autoTable({
+        startY: 54,
+        head: [['No', 'Tanggal', 'Keterangan', 'Kategori', 'Debit (Masuk)', 'Kredit (Keluar)', 'Saldo']],
+        body: tableRows,
+        theme: 'striped',
+        headStyles: {
+            fillColor: [15, 23, 42], // Slate-900 background for table head
+            textColor: [255, 255, 255],
+            fontSize: 9,
+            fontStyle: 'bold',
+            halign: 'center'
+        },
+        columnStyles: {
+            0: { halign: 'center', cellWidth: 8 },
+            1: { cellWidth: 26 },
+            2: { cellWidth: 50 },
+            3: { cellWidth: 24 },
+            4: { halign: 'right', cellWidth: 28 },
+            5: { halign: 'right', cellWidth: 28 },
+            6: { halign: 'right', cellWidth: 32 }
+        },
+        styles: {
+            fontSize: 8.5,
+            cellPadding: 3
+        }
+    });
+
+    // 5. Append Summary / Total Rekap below table
+    const finalY = doc.lastAutoTable.finalY + 12;
+
+    doc.setDrawColor(15, 23, 42);
+    doc.line(14, finalY - 4, 196, finalY - 4);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(15, 23, 42);
+
+    doc.text("RINGKASAN MUTASI", 14, finalY);
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Total Pemasukan (Debit):`, 14, finalY + 8);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(16, 185, 129); // green
+    doc.text(`+ Rp ${totalDebit.toLocaleString('id-ID')}`, 65, finalY + 8);
+
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(15, 23, 42);
+    doc.text(`Total Pengeluaran (Kredit):`, 14, finalY + 14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(239, 68, 68); // red
+    doc.text(`- Rp ${totalKredit.toLocaleString('id-ID')}`, 65, finalY + 14);
+
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(15, 23, 42);
+    doc.text(`Saldo Akhir Periode:`, 14, finalY + 20);
+    const balanceColor = runningBalance >= 0 ? [16, 185, 129] : [239, 68, 68];
+    doc.setTextColor(balanceColor[0], balanceColor[1], balanceColor[2]);
+    doc.text(`Rp ${runningBalance.toLocaleString('id-ID')}`, 65, finalY + 20);
+
+    // Save generated PDF
+    const filename = `Rekening_Koran_${startInput}_sd_${endInput}.pdf`;
+    doc.save(filename);
+};
+
 window.exportToCSV = () => {
     if (!window.transactions || window.transactions.length === 0) { alert('Tidak ada data!'); return; }
     let csv = "data:text/csv;charset=utf-8,ID,Tanggal,Deskripsi,Kategori,Nominal,Tipe\n";

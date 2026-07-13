@@ -406,6 +406,27 @@
                         </div>
                     </div>
 
+                    <!-- PDF Bank Statement Export Card -->
+                    <div class="settings-section card" style="background: white; padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); margin-bottom: 24px;">
+                        <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--clr-text-main); border: none; padding: 0;">Unduh Rekening Koran (PDF)</h3>
+                        <p style="color: var(--clr-text-muted); font-size: 12px; margin: 4px 0 16px 0;">Pilih rentang tanggal untuk mengunduh laporan mutasi formal berformat PDF.</p>
+                        
+                        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 11px; color: var(--clr-text-muted); display: block; margin-bottom: 6px; font-weight: 600;">Dari Tanggal</label>
+                                <input type="date" id="pdfStartDate" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; box-sizing: border-box; font-family: inherit;">
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="font-size: 11px; color: var(--clr-text-muted); display: block; margin-bottom: 6px; font-weight: 600;">Sampai Tanggal</label>
+                                <input type="date" id="pdfEndDate" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; box-sizing: border-box; font-family: inherit;">
+                            </div>
+                        </div>
+
+                        <button type="button" onclick="exportToPDF()" class="btn-primary" style="background: #3b82f6; width: 100%; border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; padding: 12px 0;">
+                            <i class="fa-solid fa-file-pdf"></i> Unduh PDF Rekening Koran
+                        </button>
+                    </div>
+
                     <div class="chart-section">
                         <h3>Grafik Keuangan</h3>
                         <div class="chart-container">
@@ -604,6 +625,8 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="app.js"></script>
     <script>
         
