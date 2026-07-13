@@ -1025,16 +1025,23 @@ window.exportToPDF = async () => {
 
     const allData = window.transactions || [];
     
-    // Filter & Sort chronological (ascending) for bank statement running balance
+    // 1. Calculate Saldo Awal (cumulative balance of all transactions BEFORE startDate)
+    let saldoAwal = 0;
+    allData.forEach(t => {
+        const txTime = new Date(t.created_at);
+        if (txTime < startDate) {
+            const nominal = Number(t.nominal) || 0;
+            const isIncome = String(t.tipe).toLowerCase() === 'pemasukan';
+            if (isIncome) saldoAwal += nominal;
+            else saldoAwal -= nominal;
+        }
+    });
+
+    // 2. Filter transactions in the selected date range
     const filtered = allData.filter(t => {
         const txTime = new Date(t.created_at);
         return txTime >= startDate && txTime <= endDate;
     }).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-    if (filtered.length === 0) {
-        alert("Tidak ada transaksi pada rentang tanggal tersebut!");
-        return;
-    }
 
     // Initialize jsPDF
     const { jsPDF } = window.jspdf;
@@ -1083,12 +1090,25 @@ window.exportToPDF = async () => {
     doc.setFont("helvetica", "normal");
     doc.text(new Date().toLocaleString('id-ID'), 45, 48);
 
-    // 3. Process Transaction Rows & Calculate Balances
-    let runningBalance = 0;
+    // 3. Process Transaction Rows & Calculate Balances starting from Saldo Awal
+    let runningBalance = saldoAwal;
     let totalDebit = 0; // Income
     let totalKredit = 0; // Expense
 
-    const tableRows = filtered.map((t, index) => {
+    // Row 0 is the starting balance row
+    const tableRows = [
+        [
+            "-",
+            "-",
+            "SALDO AWAL PERIODE",
+            "-",
+            "-",
+            "-",
+            "Rp " + saldoAwal.toLocaleString('id-ID')
+        ]
+    ];
+
+    filtered.forEach((t, index) => {
         const nominal = Number(t.nominal) || 0;
         const isIncome = String(t.tipe).toLowerCase() === 'pemasukan';
         
@@ -1108,7 +1128,7 @@ window.exportToPDF = async () => {
         const tDate = new Date(t.created_at);
         const formattedTxDate = tDate.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' }) + ' ' + tDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
-        return [
+        tableRows.push([
             index + 1,
             formattedTxDate,
             t.deskripsi || 'Tanpa Keterangan',
@@ -1116,69 +1136,91 @@ window.exportToPDF = async () => {
             debitStr,
             kreditStr,
             "Rp " + runningBalance.toLocaleString('id-ID')
-        ];
+        ]);
     });
 
-    // 4. Render Table using AutoTable plugin
+    // 4. Render Table using AutoTable plugin with clean styles
     doc.autoTable({
         startY: 54,
         head: [['No', 'Tanggal', 'Keterangan', 'Kategori', 'Debit (Masuk)', 'Kredit (Keluar)', 'Saldo']],
         body: tableRows,
         theme: 'striped',
         headStyles: {
-            fillColor: [15, 23, 42], // Slate-900 background for table head
+            fillColor: [30, 41, 59], // Slate-800
             textColor: [255, 255, 255],
             fontSize: 9,
             fontStyle: 'bold',
             halign: 'center'
         },
         columnStyles: {
-            0: { halign: 'center', cellWidth: 8 },
-            1: { cellWidth: 26 },
-            2: { cellWidth: 50 },
-            3: { cellWidth: 24 },
+            0: { halign: 'center', cellWidth: 10 },
+            1: { cellWidth: 26, halign: 'center' },
+            2: { cellWidth: 54 },
+            3: { cellWidth: 22, halign: 'center' },
             4: { halign: 'right', cellWidth: 28 },
             5: { halign: 'right', cellWidth: 28 },
-            6: { halign: 'right', cellWidth: 32 }
+            6: { halign: 'right', cellWidth: 28 }
         },
         styles: {
             fontSize: 8.5,
-            cellPadding: 3
+            cellPadding: 3,
+            valign: 'middle'
+        },
+        didParseCell: function (data) {
+            // Style the Saldo Awal row to look slightly distinct (italic/bold)
+            if (data.row.index === 0) {
+                data.cell.styles.fontStyle = 'bold';
+                if (data.column.index === 2) {
+                    data.cell.styles.textColor = [100, 116, 139]; // slate-500
+                }
+            }
         }
     });
 
     // 5. Append Summary / Total Rekap below table
     const finalY = doc.lastAutoTable.finalY + 12;
 
-    doc.setDrawColor(15, 23, 42);
+    doc.setDrawColor(226, 232, 240); // slate-200
     doc.line(14, finalY - 4, 196, finalY - 4);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(30, 41, 59);
 
     doc.text("RINGKASAN MUTASI", 14, finalY);
     
     doc.setFontSize(9);
+    
     doc.setFont("helvetica", "normal");
-    doc.text(`Total Pemasukan (Debit):`, 14, finalY + 8);
+    doc.text(`Saldo Awal Periode:`, 14, finalY + 8);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Rp ${saldoAwal.toLocaleString('id-ID')}`, 70, finalY + 8);
+
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Total Pemasukan (Debit):`, 14, finalY + 14);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(16, 185, 129); // green
-    doc.text(`+ Rp ${totalDebit.toLocaleString('id-ID')}`, 65, finalY + 8);
+    doc.text(`+ Rp ${totalDebit.toLocaleString('id-ID')}`, 70, finalY + 14);
 
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(15, 23, 42);
-    doc.text(`Total Pengeluaran (Kredit):`, 14, finalY + 14);
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Total Pengeluaran (Kredit):`, 14, finalY + 20);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(239, 68, 68); // red
-    doc.text(`- Rp ${totalKredit.toLocaleString('id-ID')}`, 65, finalY + 14);
+    doc.text(`- Rp ${totalKredit.toLocaleString('id-ID')}`, 70, finalY + 20);
+
+    // Divider for final balance
+    doc.setDrawColor(226, 232, 240);
+    doc.line(14, finalY + 24, 100, finalY + 24);
 
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(15, 23, 42);
-    doc.text(`Saldo Akhir Periode:`, 14, finalY + 20);
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Saldo Akhir Periode:`, 14, finalY + 29);
     const balanceColor = runningBalance >= 0 ? [16, 185, 129] : [239, 68, 68];
     doc.setTextColor(balanceColor[0], balanceColor[1], balanceColor[2]);
-    doc.text(`Rp ${runningBalance.toLocaleString('id-ID')}`, 65, finalY + 20);
+    doc.text(`Rp ${runningBalance.toLocaleString('id-ID')}`, 70, finalY + 29);
 
     // Save generated PDF
     const filename = `Rekening_Koran_${startInput}_sd_${endInput}.pdf`;
