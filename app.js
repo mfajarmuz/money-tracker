@@ -1082,34 +1082,34 @@ window.exportToPDF = async () => {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(15, 23, 42); // slate-900
-    doc.text("REKENING KORAN", 14, 20);
+    doc.text("REKENING KORAN", 10, 20); // changed 14 -> 10
     
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.setTextColor(100, 116, 139); // slate-500
-    doc.text("Laporan Mutasi Keuangan Pribadi", 14, 25);
+    doc.text("Laporan Mutasi Keuangan Pribadi", 10, 25); // changed 14 -> 10
 
     // Divider Line
     doc.setDrawColor(226, 232, 240); // slate-200
     doc.setLineWidth(0.5);
-    doc.line(14, 29, 196, 29);
+    doc.line(10, 29, 200, 29); // changed 14 -> 10, 196 -> 200
 
     // 2. Metadata Info Grid
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    doc.text("Pemilik Rekening:", 14, 36);
+    doc.text("Pemilik Rekening:", 10, 36); // changed 14 -> 10
     doc.setFont("helvetica", "normal");
-    doc.text(userEmail, 45, 36);
+    doc.text(userEmail, 42, 36); // changed 45 -> 42
 
     doc.setFont("helvetica", "bold");
-    doc.text("Periode Laporan:", 14, 42);
+    doc.text("Periode Laporan:", 10, 42); // changed 14 -> 10
     doc.setFont("helvetica", "normal");
-    doc.text(`${formatStatementDate(startDate)} - ${formatStatementDate(endDate)}`, 45, 42);
+    doc.text(`${formatStatementDate(startDate)} - ${formatStatementDate(endDate)}`, 42, 42); // changed 45 -> 42
 
     doc.setFont("helvetica", "bold");
-    doc.text("Tanggal Cetak:", 14, 48);
+    doc.text("Tanggal Cetak:", 10, 48); // changed 14 -> 10
     doc.setFont("helvetica", "normal");
-    doc.text(new Date().toLocaleString('id-ID'), 45, 48);
+    doc.text(new Date().toLocaleString('id-ID'), 42, 48); // changed 45 -> 42
 
     // 3. Process Transaction Rows & Calculate Balances starting from Saldo Awal
     let runningBalance = saldoAwal;
@@ -1174,7 +1174,7 @@ window.exportToPDF = async () => {
         head: [['No', 'Tanggal', 'Keterangan', 'Kategori', 'Debit (Masuk)', 'Kredit (Keluar)', 'Saldo']],
         body: tableRows,
         theme: 'striped',
-        margin: { left: 14, right: 14 }, // Force margin left & right to keep table centered
+        margin: { left: 10, right: 10 }, // Force margin left & right to 10
         headStyles: {
             fillColor: [30, 41, 59], // Slate-800
             textColor: [255, 255, 255],
@@ -1212,46 +1212,46 @@ window.exportToPDF = async () => {
     const finalY = doc.lastAutoTable.finalY + 12;
 
     doc.setDrawColor(226, 232, 240); // slate-200
-    doc.line(14, finalY - 4, 196, finalY - 4);
+    doc.line(10, finalY - 4, 200, finalY - 4); // changed 14 -> 10, 196 -> 200
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(30, 41, 59);
 
-    doc.text("RINGKASAN MUTASI", 14, finalY);
+    doc.text("RINGKASAN MUTASI", 10, finalY); // changed 14 -> 10
     
     doc.setFontSize(9);
     
     doc.setFont("helvetica", "normal");
-    doc.text(`Saldo Awal Periode:`, 14, finalY + 8);
+    doc.text(`Saldo Awal Periode:`, 10, finalY + 8); // changed 14 -> 10
     doc.setFont("helvetica", "bold");
     doc.setTextColor(30, 41, 59);
-    doc.text(`Rp ${saldoAwal.toLocaleString('id-ID')}`, 70, finalY + 8);
+    doc.text(`Rp ${saldoAwal.toLocaleString('id-ID')}`, 66, finalY + 8); // changed 70 -> 66
 
     doc.setFont("helvetica", "normal");
     doc.setTextColor(30, 41, 59);
-    doc.text(`Total Pemasukan (Debit):`, 14, finalY + 14);
+    doc.text(`Total Pemasukan (Debit):`, 10, finalY + 14); // changed 14 -> 10
     doc.setFont("helvetica", "bold");
     doc.setTextColor(16, 185, 129); // green
-    doc.text(`+ Rp ${totalDebit.toLocaleString('id-ID')}`, 70, finalY + 14);
+    doc.text(`+ Rp ${totalDebit.toLocaleString('id-ID')}`, 66, finalY + 14); // changed 70 -> 66
 
     doc.setFont("helvetica", "normal");
     doc.setTextColor(30, 41, 59);
-    doc.text(`Total Pengeluaran (Kredit):`, 14, finalY + 20);
+    doc.text(`Total Pengeluaran (Kredit):`, 10, finalY + 20); // changed 14 -> 10
     doc.setFont("helvetica", "bold");
     doc.setTextColor(239, 68, 68); // red
-    doc.text(`- Rp ${totalKredit.toLocaleString('id-ID')}`, 70, finalY + 20);
+    doc.text(`- Rp ${totalKredit.toLocaleString('id-ID')}`, 66, finalY + 20); // changed 70 -> 66
 
     // Divider for final balance
     doc.setDrawColor(226, 232, 240);
-    doc.line(14, finalY + 24, 100, finalY + 24);
+    doc.line(10, finalY + 24, 100, finalY + 24); // changed 14 -> 10
 
     doc.setFont("helvetica", "bold");
     doc.setTextColor(30, 41, 59);
-    doc.text(`Saldo Akhir Periode:`, 14, finalY + 29);
+    doc.text(`Saldo Akhir Periode:`, 10, finalY + 29); // changed 14 -> 10
     const balanceColor = runningBalance >= 0 ? [16, 185, 129] : [239, 68, 68];
     doc.setTextColor(balanceColor[0], balanceColor[1], balanceColor[2]);
-    doc.text(`Rp ${runningBalance.toLocaleString('id-ID')}`, 70, finalY + 29);
+    doc.text(`Rp ${runningBalance.toLocaleString('id-ID')}`, 66, finalY + 29); // changed 70 -> 66
 
     // Save generated PDF
     const filename = `Rekening_Koran_${startInput}_sd_${endInput}.pdf`;
