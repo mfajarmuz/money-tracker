@@ -1095,6 +1095,14 @@ window.exportToPDF = async () => {
     let totalDebit = 0; // Income
     let totalKredit = 0; // Expense
 
+    // Helper to format currency values cleanly in table
+    const formatRowCurrency = (val) => {
+        if (val === 0) return "Rp 0";
+        return val >= 0 
+            ? "Rp " + val.toLocaleString('id-ID') 
+            : "-Rp " + Math.abs(val).toLocaleString('id-ID');
+    };
+
     // Row 0 is the starting balance row
     const tableRows = [
         [
@@ -1104,7 +1112,7 @@ window.exportToPDF = async () => {
             "-",
             "-",
             "-",
-            "Rp " + saldoAwal.toLocaleString('id-ID')
+            formatRowCurrency(saldoAwal)
         ]
     ];
 
@@ -1126,7 +1134,7 @@ window.exportToPDF = async () => {
         }
 
         const tDate = new Date(t.created_at);
-        const formattedTxDate = tDate.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' }) + ' ' + tDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        const formattedTxDate = tDate.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' }) + ' ' + tDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
 
         tableRows.push([
             index + 1,
@@ -1135,7 +1143,7 @@ window.exportToPDF = async () => {
             t.kategori || 'Lainnya',
             debitStr,
             kreditStr,
-            "Rp " + runningBalance.toLocaleString('id-ID')
+            formatRowCurrency(runningBalance)
         ]);
     });
 
@@ -1153,13 +1161,13 @@ window.exportToPDF = async () => {
             halign: 'center'
         },
         columnStyles: {
-            0: { halign: 'center', cellWidth: 10 },
-            1: { cellWidth: 26, halign: 'center' },
-            2: { cellWidth: 54 },
+            0: { halign: 'center', cellWidth: 8 },
+            1: { cellWidth: 24, halign: 'center' },
+            2: { cellWidth: 48 },
             3: { cellWidth: 22, halign: 'center' },
-            4: { halign: 'right', cellWidth: 28 },
-            5: { halign: 'right', cellWidth: 28 },
-            6: { halign: 'right', cellWidth: 28 }
+            4: { halign: 'right', cellWidth: 25 },
+            5: { halign: 'right', cellWidth: 25 },
+            6: { halign: 'right', cellWidth: 30 }
         },
         styles: {
             fontSize: 8.5,
