@@ -479,16 +479,37 @@ async function initApp() {
             categories.forEach(cat => {
                 const tr = document.createElement('div');
                 tr.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#FFF;border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,0.03);margin-bottom:8px;';
-                const name = document.createElement('div'); name.textContent = cat.nama; name.style.cssText = 'font-weight:600;font-size:14px;';
-                const del = document.createElement('button'); del.textContent = 'Hapus';
-                del.style.cssText = 'background:rgba(239,68,68,0.1);color:#EF4444;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;';
+                
+                const name = document.createElement('div'); 
+                name.textContent = cat.nama; 
+                name.style.cssText = 'font-weight:600;font-size:14px;';
+                
+                const actionsWrapper = document.createElement('div');
+                actionsWrapper.style.cssText = 'display:flex;gap:8px;';
+
+                // Edit Button
+                const btnEdit = document.createElement('button');
+                btnEdit.type = 'button';
+                btnEdit.textContent = 'Edit';
+                btnEdit.style.cssText = 'background:rgba(59,130,246,0.1);color:#3b82f6;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;';
+                btnEdit.addEventListener('click', () => {
+                    window.openEditCategoryModal(cat);
+                });
+
+                // Delete Button
+                const del = document.createElement('button'); 
+                del.type = 'button';
+                del.textContent = 'Hapus';
+                del.style.cssText = 'background:rgba(239,68,68,0.1);color:#EF4444;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;';
                 del.addEventListener('click', async () => {
                     if (transactions.some(t => t.kategori === cat.nama)) { alert('Kategori "' + cat.nama + '" sedang dipakai.'); return; }
                     const { error } = await sb.from('categories').delete().eq('id', cat.id);
                     if (error) { alert('Gagal: ' + error.message); return; }
                     await fetchAndRender();
                 });
-                tr.append(name, del);
+
+                actionsWrapper.append(btnEdit, del);
+                tr.append(name, actionsWrapper);
                 categoryTableBody.appendChild(tr);
             });
         }
@@ -1255,4 +1276,59 @@ window.dangerResetDatabase = async () => {
     const { error } = await sb.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
     if (error) alert('Gagal: ' + error.message);
     else { alert('Database dibersihkan!'); await window.fetchAndRenderGlobal(); }
+};
+
+// === GLOBAL EDIT CATEGORY LOGIC ===
+window.openEditCategoryModal = function(cat) {
+    const modal = document.getElementById('editCategoryModal');
+    if (!modal) return;
+    
+    document.getElementById('editCategoryId').value = cat.id;
+    document.getElementById('editCategoryOldName').value = cat.nama;
+    document.getElementById('editCategoryNewName').value = cat.nama;
+    
+    modal.classList.add('active');
+};
+
+window.submitEditCategory = async function() {
+    const id = document.getElementById('editCategoryId').value;
+    const oldName = document.getElementById('editCategoryOldName').value;
+    const newName = document.getElementById('editCategoryNewName').value.trim();
+
+    if (!newName) {
+        alert("Nama kategori tidak boleh kosong!");
+        return;
+    }
+
+    if (oldName.toLowerCase() === newName.toLowerCase()) {
+        closeEditCategoryModal();
+        return;
+    }
+
+    const confirmBtn = document.querySelector('#editCategoryModal .btn-primary:not([onclick*="close"])');
+    confirmBtn.textContent = 'Menyimpan...';
+    confirmBtn.disabled = true;
+
+    // 1. Update category name in categories table
+    const { error: catError } = await sb.from('categories').update({ nama: newName }).eq('id', id);
+
+    if (catError) {
+        alert("Gagal mengupdate kategori: " + catError.message);
+        confirmBtn.textContent = 'Simpan';
+        confirmBtn.disabled = false;
+        return;
+    }
+
+    // 2. Cascade update category name in all transactions that used the old name
+    const { error: txError } = await sb.from('transactions').update({ kategori: newName }).eq('kategori', oldName);
+
+    confirmBtn.textContent = 'Simpan';
+    confirmBtn.disabled = false;
+
+    if (txError) {
+        alert("Kategori terupdate, tetapi gagal mengupdate transaksi lama: " + txError.message);
+    }
+
+    await window.fetchAndRenderGlobal();
+    closeEditCategoryModal();
 };
