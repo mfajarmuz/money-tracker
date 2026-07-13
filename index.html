@@ -61,23 +61,23 @@
                 <!-- BOTTOM SECTION: White Background -->
                 <section class="bottom-section">
                     
-                    <!-- QUICK ACTIONS -->
+                    <!-- QUICK UTILITY SHORTCUTS (Replaces old Quick Actions) -->
                     <div class="quick-actions">
-                        <div class="quick-action-item" onclick="openTransactionModal()">
-                            <div class="qa-icon"><i class="fa-solid fa-plus"></i></div>
-                            <span>Pemasukan</span>
+                        <div class="quick-action-item" onclick="triggerQuickPDF()">
+                            <div class="qa-icon" style="background-color: rgba(59, 130, 246, 0.1);"><i class="fa-solid fa-file-pdf" style="color: #3b82f6;"></i></div>
+                            <span>Cetak PDF</span>
                         </div>
-                        <div class="quick-action-item" onclick="openTransactionModal('pengeluaran')">
-                            <div class="qa-icon"><i class="fa-solid fa-money-bill-transfer"></i></div>
-                            <span>Pengeluaran</span>
+                        <div class="quick-action-item" onclick="triggerQuickSearch()">
+                            <div class="qa-icon" style="background-color: rgba(16, 185, 129, 0.1);"><i class="fa-solid fa-magnifying-glass" style="color: #10b981;"></i></div>
+                            <span>Cari</span>
                         </div>
-                        <div class="quick-action-item" onclick="openRiwayatLengkapPage()">
-                            <div class="qa-icon"><i class="fa-solid fa-chart-pie"></i></div>
-                            <span>Report</span>
+                        <div class="quick-action-item" onclick="document.querySelector('.bottom-nav .nav-item[data-target=\'kategori_view\']').click()">
+                            <div class="qa-icon" style="background-color: rgba(245, 158, 11, 0.1);"><i class="fa-solid fa-tags" style="color: #f59e0b;"></i></div>
+                            <span>Kategori</span>
                         </div>
-                        <div class="quick-action-item" onclick="document.querySelector('.nav-item[data-target=\'pengaturan\']').click()">
-                            <div class="qa-icon"><i class="fa-solid fa-ellipsis"></i></div>
-                            <span>More</span>
+                        <div class="quick-action-item" onclick="exportToCSV()">
+                            <div class="qa-icon" style="background-color: rgba(100, 116, 139, 0.1);"><i class="fa-solid fa-file-csv" style="color: #64748b;"></i></div>
+                            <span>Ekspor CSV</span>
                         </div>
                     </div>
 
@@ -799,6 +799,26 @@
                 document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => nav.classList.remove('active'));
                 navItem.classList.add('active');
             }
+        }
+
+        // Quick Utility trigger functions
+        function triggerQuickPDF() {
+            document.querySelector('.bottom-nav .nav-item[data-target="laporan"]').click();
+            setTimeout(() => {
+                const pdfCard = document.querySelector('#laporan .settings-section');
+                if (pdfCard) {
+                    pdfCard.scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('pdfStartDate').focus();
+                }
+            }, 300);
+        }
+
+        function triggerQuickSearch() {
+            openRiwayatLengkapPage();
+            setTimeout(() => {
+                const searchInput = document.getElementById('searchKeterangan');
+                if (searchInput) searchInput.focus();
+            }, 300);
         }
 
         // Close Edit Page view
