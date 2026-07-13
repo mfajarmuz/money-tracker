@@ -1153,26 +1153,28 @@ window.exportToPDF = async () => {
         head: [['No', 'Tanggal', 'Keterangan', 'Kategori', 'Debit (Masuk)', 'Kredit (Keluar)', 'Saldo']],
         body: tableRows,
         theme: 'striped',
+        margin: { left: 14, right: 14 }, // Force margin left & right to keep table centered
         headStyles: {
             fillColor: [30, 41, 59], // Slate-800
             textColor: [255, 255, 255],
-            fontSize: 9,
+            fontSize: 8.5,
             fontStyle: 'bold',
             halign: 'center'
         },
         columnStyles: {
             0: { halign: 'center', cellWidth: 8 },
-            1: { cellWidth: 24, halign: 'center' },
-            2: { cellWidth: 48 },
-            3: { cellWidth: 22, halign: 'center' },
-            4: { halign: 'right', cellWidth: 25 },
-            5: { halign: 'right', cellWidth: 25 },
+            1: { halign: 'center', cellWidth: 26 },
+            2: { cellWidth: 'auto' }, // Let description wrap and take remaining space
+            3: { halign: 'center', cellWidth: 22 },
+            4: { halign: 'right', cellWidth: 28 },
+            5: { halign: 'right', cellWidth: 28 },
             6: { halign: 'right', cellWidth: 30 }
         },
         styles: {
-            fontSize: 8.5,
+            fontSize: 8,
             cellPadding: 3,
-            valign: 'middle'
+            valign: 'middle',
+            overflow: 'linebreak' // Auto wrap text for description column
         },
         didParseCell: function (data) {
             // Style the Saldo Awal row to look slightly distinct (italic/bold)
