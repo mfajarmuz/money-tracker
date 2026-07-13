@@ -1183,10 +1183,10 @@ window.exportToPDF = async () => {
             halign: 'center'
         },
         columnStyles: {
-            0: { halign: 'center', cellWidth: 8 },
+            0: { halign: 'center', cellWidth: 12 }, // Increased from 8 to 12 to prevent double-digit wrapping
             1: { halign: 'center', cellWidth: 26 },
             2: { cellWidth: 'auto' }, // Let description wrap and take remaining space
-            3: { halign: 'center', cellWidth: 22 },
+            3: { halign: 'center', cellWidth: 24 }, // Increased from 22 to 24
             4: { halign: 'right', cellWidth: 28 },
             5: { halign: 'right', cellWidth: 28 },
             6: { halign: 'right', cellWidth: 30 }
