@@ -217,7 +217,10 @@ if (googleBtn) {
     sb.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session) {
             addSessionToList(session);
-            showApp(session.user);
+            // Only show app if we are not already showing it (avoids double initialization race condition)
+            if (document.getElementById('mainContent').style.display === 'none') {
+                showApp(session.user);
+            }
         } else if (event === 'SIGNED_OUT') {
             showAuthScreen();
         }
@@ -533,17 +536,31 @@ async function initApp() {
         const tbody = document.getElementById('historyTableBody');
         if (tbody) tbody.innerHTML = '<div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Memuat data...</div>';
 
-        const [{ data: txData, error: txError }, { data: catData, error: catError }] = await Promise.all([
-            sb.from('transactions').select('*').order('created_at', { ascending: false }),
-            sb.from('categories').select('*').order('created_at', { ascending: true })
-        ]);
+        try {
+            const [{ data: txData, error: txError }, { data: catData, error: catError }] = await Promise.all([
+                sb.from('transactions').select('*').order('created_at', { ascending: false }),
+                sb.from('categories').select('*').order('created_at', { ascending: true })
+            ]);
 
-        if (txError) console.error('Tx error:', txError);
-        else { transactions = txData || []; window.transactions = transactions; }
-        if (catError) console.error('Cat error:', catError);
-        else categories = catData || [];
+            if (txError) {
+                console.error('Tx error:', txError);
+                if (tbody) tbody.innerHTML = '<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px;">Gagal memuat transaksi. Tarik untuk coba lagi.</div>';
+            } else { 
+                transactions = txData || []; 
+                window.transactions = transactions; 
+            }
+            
+            if (catError) {
+                console.error('Cat error:', catError);
+            } else {
+                categories = catData || [];
+            }
 
-        updateUI();
+            updateUI();
+        } catch (err) {
+            console.error('Unexpected fetch error:', err);
+            if (tbody) tbody.innerHTML = '<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px;">Koneksi terputus. Silakan refresh halaman.</div>';
+        }
     }
 
     // Category form
