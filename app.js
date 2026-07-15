@@ -453,30 +453,31 @@ async function initApp() {
     }
 
     function renderCategories() {
-        const chipsContainer = document.getElementById('categoryChips');
-        if (chipsContainer) {
-            chipsContainer.innerHTML = '';
-            const katSelect = document.getElementById('kategori');
-            if (katSelect) katSelect.innerHTML = '';
+        const katSelect = document.getElementById('kategori');
+        const editPageSelect = document.getElementById('editPageCategorySelect');
+
+        if (katSelect) {
+            katSelect.innerHTML = '';
             categories.forEach((cat, i) => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'chip-btn' + (i === 0 ? ' active' : '');
-                btn.textContent = cat.nama;
-                btn.onclick = () => {
-                    document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    if (katSelect) katSelect.value = cat.nama;
-                };
-                chipsContainer.appendChild(btn);
-                if (katSelect) {
-                    const opt = document.createElement('option');
-                    opt.value = cat.nama; opt.textContent = cat.nama;
-                    if (i === 0) opt.selected = true;
-                    katSelect.appendChild(opt);
-                }
+                const opt = document.createElement('option');
+                opt.value = cat.nama;
+                opt.textContent = cat.nama;
+                if (i === 0) opt.selected = true;
+                katSelect.appendChild(opt);
             });
         }
+
+        if (editPageSelect) {
+            editPageSelect.innerHTML = '';
+            categories.forEach((cat, i) => {
+                const opt = document.createElement('option');
+                opt.value = cat.nama;
+                opt.textContent = cat.nama;
+                if (i === 0) opt.selected = true;
+                editPageSelect.appendChild(opt);
+            });
+        }
+
         if (categoryTableBody) {
             categoryTableBody.innerHTML = '';
             categories.forEach(cat => {
@@ -707,8 +708,11 @@ async function initApp() {
         // Set type
         setEditPageType(t.tipe || 'pengeluaran');
 
-        // Render Category Grid with Icons
-        renderEditPageCategoryGrid(t.kategori || 'Lainnya');
+        // Set selected dropdown category value
+        const editPageSelect = document.getElementById('editPageCategorySelect');
+        if (editPageSelect) {
+            editPageSelect.value = t.kategori || 'Lainnya';
+        }
     };
 
     // Helper for segmented control type switcher
@@ -726,68 +730,13 @@ async function initApp() {
         }
     };
 
-    // Category Grid Renderer with matching icons
-    function renderEditPageCategoryGrid(selectedCategory) {
-        const gridEl = document.getElementById('editPageCategoryGrid');
-        if (!gridEl) return;
-        gridEl.innerHTML = '';
-
-        // Default categories with predefined icons
-        const iconMapping = {
-            'makanan': 'fa-utensils',
-            'belanja': 'fa-bag-shopping',
-            'hiburan': 'fa-ticket',
-            'tagihan': 'fa-file-invoice-dollar',
-            'transportasi': 'fa-car',
-            'gaji': 'fa-money-bill-wave'
-        };
-
-        // Standardize local names to icons
-        const getIconClass = (name) => {
-            const lower = String(name).toLowerCase();
-            return iconMapping[lower] || 'fa-ellipsis';
-        };
-
-        categories.forEach(cat => {
-            const isSelected = cat.nama === selectedCategory;
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:left;';
-            
-            if (isSelected) {
-                btn.style.cssText += 'background:rgba(59,130,246,0.06);border:1.5px solid #3b82f6;color:#3b82f6;';
-            } else {
-                btn.style.cssText += 'background:white;border:1.5px solid #e2e8f0;color:#64748b;';
-            }
-
-            const icon = document.createElement('i');
-            icon.className = `fa-solid ${getIconClass(cat.nama)}`;
-            icon.style.fontSize = '14px';
-            
-            const text = document.createElement('span');
-            text.textContent = cat.nama;
-
-            btn.append(icon, text);
-
-            btn.addEventListener('click', () => {
-                document.getElementById('editPageTxCategory').value = cat.nama;
-                renderEditPageCategoryGrid(cat.nama);
-            });
-
-            gridEl.appendChild(btn);
-        });
-
-        // Store selected category value
-        document.getElementById('editPageTxCategory').value = selectedCategory;
-    }
-
     // Submit Action for the Edit Page View
     window.submitEditForm = async function() {
         const id = document.getElementById('editPageTxId').value;
         const amountRaw = document.getElementById('editPageAmount').value;
         const nominal = Number(amountRaw.replace(/\D/g, ''));
         const tipe = document.getElementById('editPageTxType').value;
-        const kategori = document.getElementById('editPageTxCategory').value;
+        const kategori = document.getElementById('editPageCategorySelect').value; // Read directly from dropdown
         const deskripsi = document.getElementById('editPageDescription').value.trim() || 'Tanpa Keterangan';
         
         const dateVal = document.getElementById('editPageDate').value;
