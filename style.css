@@ -715,6 +715,8 @@ body {
     margin-bottom: 16px;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    touch-action: pan-x; /* Force horizontal touch gestures to handle scrolling */
+    -webkit-overflow-scrolling: touch; /* Enable smooth momentum scrolling on iOS/Android */
 }
 
 .category-chips-container::-webkit-scrollbar {
