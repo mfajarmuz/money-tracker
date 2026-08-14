@@ -1298,3 +1298,160 @@ window.submitEditCategory = async function() {
     await window.fetchAndRenderGlobal();
     closeEditCategoryModal();
 };
+
+// ===========================
+// NOTES MODULE (Catatan Keuangan)
+// ===========================
+
+window.notesList = [];
+
+function getLocalNotes() {
+    try {
+        return JSON.parse(localStorage.getItem('mt_notes') || '[]');
+    } catch(e) {
+        return [];
+    }
+}
+
+function saveLocalNotes(notes) {
+    localStorage.setItem('mt_notes', JSON.stringify(notes));
+}
+
+window.fetchNotes = async function() {
+    const listEl = document.getElementById('notesList');
+    if (listEl) {
+        listEl.innerHTML = '<div style="text-align:center; padding:20px; color:var(--clr-text-muted);"><i class="fa-solid fa-circle-notch fa-spin"></i> Memuat catatan...</div>';
+    }
+
+    let loadedNotes = [];
+    let isSupabaseSuccess = false;
+
+    try {
+        const { data, error } = await sb.from('notes').select('*').order('updated_at', { ascending: false });
+        if (!error && data) {
+            loadedNotes = data;
+            isSupabaseSuccess = true;
+        }
+    } catch (e) {
+        console.warn('Supabase notes fetch fallback to local:', e);
+    }
+
+    if (!isSupabaseSuccess) {
+        loadedNotes = getLocalNotes();
+    }
+
+    window.notesList = loadedNotes;
+    window.renderNotes();
+};
+
+window.renderNotes = function() {
+    const listEl = document.getElementById('notesList');
+    if (!listEl) return;
+
+    const notes = window.notesList || [];
+    if (notes.length === 0) {
+        listEl.innerHTML = `
+            <div style="text-align:center; padding: 40px 20px; background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+                <i class="fa-solid fa-note-sticky" style="font-size: 40px; color: #cbd5e1; margin-bottom: 12px;"></i>
+                <h4 style="font-size: 15px; color: var(--clr-text-main); font-weight: 600; margin-bottom: 4px;">Belum Ada Catatan</h4>
+                <p style="font-size: 12px; color: var(--clr-text-muted); margin-bottom: 16px;">Buat catatan atau pengingat belanja & utang piutangmu di sini.</p>
+                <button type="button" onclick="openNoteModal()" class="btn-primary" style="padding: 8px 16px; font-size: 13px; background: #a855f7; border-radius: 8px; color: white; border: none; cursor: pointer;">
+                    <i class="fa-solid fa-plus"></i> Buat Catatan Pertama
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    listEl.innerHTML = notes.map(n => {
+        const dateObj = new Date(n.updated_at || n.created_at || Date.now());
+        const formattedDate = dateObj.toLocaleDateString('id-ID', {
+            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        const safeTitle = (n.judul || 'Tanpa Judul').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const safeContent = (n.isi || '').replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>');
+
+        return `
+            <div class="card" style="background: white; padding: 16px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border-left: 4px solid #a855f7; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <h4 style="font-size: 15px; font-weight: 700; color: var(--clr-text-main); margin: 0; padding-right: 60px; word-break: break-word;">${safeTitle}</h4>
+                    <div style="position: absolute; top: 16px; right: 16px; display: flex; gap: 8px;">
+                        <button type="button" onclick="openNoteModal('${n.id}')" style="background: rgba(168, 85, 247, 0.1); color: #a855f7; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-pen" style="font-size: 12px;"></i></button>
+                        <button type="button" onclick="handleDeleteNote('${n.id}')" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-trash-can" style="font-size: 12px;"></i></button>
+                    </div>
+                </div>
+                <div style="font-size: 13px; color: #334155; line-height: 1.5; margin-bottom: 12px; word-break: break-word;">
+                    ${safeContent}
+                </div>
+                <div style="font-size: 11px; color: var(--clr-text-muted); display: flex; align-items: center; gap: 4px;">
+                    <i class="fa-regular fa-clock"></i> ${formattedDate}
+                </div>
+            </div>
+        `;
+    }).join('');
+};
+
+window.handleSaveNote = async function(event) {
+    if (event) event.preventDefault();
+
+    const idInput = document.getElementById('noteId');
+    const titleInput = document.getElementById('noteTitle');
+    const contentInput = document.getElementById('noteContent');
+
+    const id = idInput.value;
+    const judul = titleInput.value.trim();
+    const isi = contentInput.value.trim();
+
+    if (!judul) return;
+
+    const now = new Date().toISOString();
+    let isSupabaseDone = false;
+
+    try {
+        let user_id = null;
+        try {
+            const { data: { user } } = await sb.auth.getUser();
+            if (user) user_id = user.id;
+        } catch(e) {}
+
+        if (id) {
+            const { error } = await sb.from('notes').update({ judul, isi, updated_at: now }).eq('id', id);
+            if (!error) isSupabaseDone = true;
+        } else {
+            const { data, error } = await sb.from('notes').insert([{ judul, isi, user_id, created_at: now, updated_at: now }]).select();
+            if (!error) isSupabaseDone = true;
+        }
+    } catch(e) {
+        console.warn('Supabase note save error, using local fallback:', e);
+    }
+
+    // Keep localStorage in sync
+    let localNotes = getLocalNotes();
+    if (id) {
+        localNotes = localNotes.map(n => n.id === id ? { ...n, judul, isi, updated_at: now } : n);
+    } else {
+        const newNote = { id: 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), judul, isi, created_at: now, updated_at: now };
+        localNotes.unshift(newNote);
+    }
+    saveLocalNotes(localNotes);
+
+    closeNoteModal();
+    await window.fetchNotes();
+};
+
+window.handleDeleteNote = async function(id) {
+    if (!confirm('Apakah kamu yakin ingin menghapus catatan ini?')) return;
+
+    try {
+        await sb.from('notes').delete().eq('id', id);
+    } catch(e) {
+        console.warn('Supabase delete note fallback:', e);
+    }
+
+    let localNotes = getLocalNotes();
+    localNotes = localNotes.filter(n => n.id !== id);
+    saveLocalNotes(localNotes);
+
+    await window.fetchNotes();
+};

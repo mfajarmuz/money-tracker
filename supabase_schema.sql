@@ -40,3 +40,19 @@ CREATE POLICY "Enable delete access for categories" ON public.categories FOR DEL
 INSERT INTO public.categories (nama) VALUES 
 ('Gaji'), ('Makan'), ('Transport'), ('Lainnya') 
 ON CONFLICT DO NOTHING;
+
+-- 4. Buat Tabel Notes (Catatan Keuangan)
+CREATE TABLE IF NOT EXISTS public.notes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    judul TEXT NOT NULL,
+    isi TEXT,
+    user_id UUID,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE public.notes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Enable read access for all users" ON public.notes FOR SELECT USING (true);
+CREATE POLICY "Enable insert access for all users" ON public.notes FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable update access for all users" ON public.notes FOR UPDATE USING (true);
+CREATE POLICY "Enable delete access for all users" ON public.notes FOR DELETE USING (true);
