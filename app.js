@@ -1346,6 +1346,27 @@ window.fetchNotes = async function() {
         if (!error && data) {
             loadedNotes = data;
             isSupabaseSuccess = true;
+
+            // Auto-sync offline/local notes created before SQL table was created
+            const localNotes = await getLocalNotes();
+            const unSynced = localNotes.filter(n => typeof n.id === 'string' && n.id.startsWith('local_'));
+            if (unSynced.length > 0 && userId && userId !== 'guest') {
+                for (const note of unSynced) {
+                    await sb.from('notes').insert([{
+                        judul: note.judul,
+                        isi: note.isi,
+                        user_id: userId,
+                        created_at: note.created_at || new Date().toISOString(),
+                        updated_at: note.updated_at || new Date().toISOString()
+                    }]);
+                }
+                // Clear local un-synced items & re-fetch fresh Supabase notes
+                const freshLocal = localNotes.filter(n => !(typeof n.id === 'string' && n.id.startsWith('local_')));
+                await saveLocalNotes(freshLocal);
+                
+                const { data: refetchedData } = await sb.from('notes').select('*').eq('user_id', userId).order('updated_at', { ascending: false });
+                if (refetchedData) loadedNotes = refetchedData;
+            }
         }
     } catch (e) {
         console.warn('Supabase notes fetch fallback to local:', e);
