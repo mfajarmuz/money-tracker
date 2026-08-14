@@ -747,10 +747,16 @@
                 contentInput.value = '';
             }
             modal.style.display = 'flex';
+            modal.style.opacity = '1';
+            modal.style.pointerEvents = 'auto';
+            modal.classList.add('active');
         }
 
         function closeNoteModal() {
             const modal = document.getElementById('noteModal');
+            modal.classList.remove('active');
+            modal.style.opacity = '0';
+            modal.style.pointerEvents = 'none';
             modal.style.display = 'none';
             document.getElementById('noteForm').reset();
             document.getElementById('noteId').value = '';
@@ -888,6 +894,15 @@
                 closeTransactionModal();
             }
         });
+
+        const noteModalEl = document.getElementById('noteModal');
+        if (noteModalEl) {
+            noteModalEl.addEventListener('click', (e) => {
+                if (e.target.id === 'noteModal') {
+                    closeNoteModal();
+                }
+            });
+        }
 
         // Global functions for Detail Page back navigation
         let previousActiveViewId = 'dashboard';
