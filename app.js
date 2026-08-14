@@ -1300,21 +1300,31 @@ window.submitEditCategory = async function() {
 };
 
 // ===========================
-// NOTES MODULE (Catatan Keuangan)
+// NOTES MODULE (Catatan Keuangan per Akun)
 // ===========================
 
 window.notesList = [];
 
-function getLocalNotes() {
+async function getCurrentUserId() {
     try {
-        return JSON.parse(localStorage.getItem('mt_notes') || '[]');
+        const { data: { user } } = await sb.auth.getUser();
+        if (user && user.id) return user.id;
+    } catch(e) {}
+    return localStorage.getItem('mt_current_user_id') || 'guest';
+}
+
+async function getLocalNotes() {
+    const userId = await getCurrentUserId();
+    try {
+        return JSON.parse(localStorage.getItem(`mt_notes_${userId}`) || '[]');
     } catch(e) {
         return [];
     }
 }
 
-function saveLocalNotes(notes) {
-    localStorage.setItem('mt_notes', JSON.stringify(notes));
+async function saveLocalNotes(notes) {
+    const userId = await getCurrentUserId();
+    localStorage.setItem(`mt_notes_${userId}`, JSON.stringify(notes));
 }
 
 window.fetchNotes = async function() {
@@ -1325,9 +1335,14 @@ window.fetchNotes = async function() {
 
     let loadedNotes = [];
     let isSupabaseSuccess = false;
+    const userId = await getCurrentUserId();
 
     try {
-        const { data, error } = await sb.from('notes').select('*').order('updated_at', { ascending: false });
+        let query = sb.from('notes').select('*').order('updated_at', { ascending: false });
+        if (userId && userId !== 'guest') {
+            query = query.eq('user_id', userId);
+        }
+        const { data, error } = await query;
         if (!error && data) {
             loadedNotes = data;
             isSupabaseSuccess = true;
@@ -1337,7 +1352,7 @@ window.fetchNotes = async function() {
     }
 
     if (!isSupabaseSuccess) {
-        loadedNotes = getLocalNotes();
+        loadedNotes = await getLocalNotes();
     }
 
     window.notesList = loadedNotes;
@@ -1406,35 +1421,32 @@ window.handleSaveNote = async function(event) {
     if (!judul) return;
 
     const now = new Date().toISOString();
+    const userId = await getCurrentUserId();
     let isSupabaseDone = false;
 
     try {
-        let user_id = null;
-        try {
-            const { data: { user } } = await sb.auth.getUser();
-            if (user) user_id = user.id;
-        } catch(e) {}
-
         if (id) {
-            const { error } = await sb.from('notes').update({ judul, isi, updated_at: now }).eq('id', id);
+            let updateQuery = sb.from('notes').update({ judul, isi, updated_at: now }).eq('id', id);
+            if (userId && userId !== 'guest') updateQuery = updateQuery.eq('user_id', userId);
+            const { error } = await updateQuery;
             if (!error) isSupabaseDone = true;
         } else {
-            const { data, error } = await sb.from('notes').insert([{ judul, isi, user_id, created_at: now, updated_at: now }]).select();
+            const { data, error } = await sb.from('notes').insert([{ judul, isi, user_id: userId !== 'guest' ? userId : null, created_at: now, updated_at: now }]).select();
             if (!error) isSupabaseDone = true;
         }
     } catch(e) {
         console.warn('Supabase note save error, using local fallback:', e);
     }
 
-    // Keep localStorage in sync
-    let localNotes = getLocalNotes();
+    // Keep localStorage in sync per user
+    let localNotes = await getLocalNotes();
     if (id) {
         localNotes = localNotes.map(n => n.id === id ? { ...n, judul, isi, updated_at: now } : n);
     } else {
-        const newNote = { id: 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), judul, isi, created_at: now, updated_at: now };
+        const newNote = { id: 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5), judul, isi, user_id: userId, created_at: now, updated_at: now };
         localNotes.unshift(newNote);
     }
-    saveLocalNotes(localNotes);
+    await saveLocalNotes(localNotes);
 
     closeNoteModal();
     await window.fetchNotes();
@@ -1443,15 +1455,19 @@ window.handleSaveNote = async function(event) {
 window.handleDeleteNote = async function(id) {
     if (!confirm('Apakah kamu yakin ingin menghapus catatan ini?')) return;
 
+    const userId = await getCurrentUserId();
+
     try {
-        await sb.from('notes').delete().eq('id', id);
+        let deleteQuery = sb.from('notes').delete().eq('id', id);
+        if (userId && userId !== 'guest') deleteQuery = deleteQuery.eq('user_id', userId);
+        await deleteQuery;
     } catch(e) {
         console.warn('Supabase delete note fallback:', e);
     }
 
-    let localNotes = getLocalNotes();
+    let localNotes = await getLocalNotes();
     localNotes = localNotes.filter(n => n.id !== id);
-    saveLocalNotes(localNotes);
+    await saveLocalNotes(localNotes);
 
     await window.fetchNotes();
 };

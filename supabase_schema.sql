@@ -41,7 +41,7 @@ INSERT INTO public.categories (nama) VALUES
 ('Gaji'), ('Makan'), ('Transport'), ('Lainnya') 
 ON CONFLICT DO NOTHING;
 
--- 4. Buat Tabel Notes (Catatan Keuangan)
+-- 4. Buat Tabel Notes (Catatan Keuangan per Akun)
 CREATE TABLE IF NOT EXISTS public.notes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     judul TEXT NOT NULL,
@@ -52,7 +52,10 @@ CREATE TABLE IF NOT EXISTS public.notes (
 );
 
 ALTER TABLE public.notes ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Enable read access for all users" ON public.notes FOR SELECT USING (true);
-CREATE POLICY "Enable insert access for all users" ON public.notes FOR INSERT WITH CHECK (true);
-CREATE POLICY "Enable update access for all users" ON public.notes FOR UPDATE USING (true);
-CREATE POLICY "Enable delete access for all users" ON public.notes FOR DELETE USING (true);
+
+-- Kebijakan RLS agar pengguna hanya bisa membaca, membuat, mengedit, dan menghapus catatannya sendiri
+CREATE POLICY "Users can manage their own notes" 
+ON public.notes 
+FOR ALL 
+USING (auth.uid() = user_id OR user_id IS NULL) 
+WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
