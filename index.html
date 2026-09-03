@@ -346,13 +346,13 @@
                     </button>
                 </header>
 
-                <div style="padding: 20px;">
+                <div class="edit-page-content" style="padding: 16px 20px 40px 20px;">
                     <!-- Segmented Control for Tipe -->
-                    <div style="display: flex; background: white; border-radius: 24px; padding: 4px; margin-bottom: 20px; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0;">
-                        <button type="button" id="btnEditTypePengeluaran" onclick="setEditPageType('pengeluaran')" style="flex: 1; padding: 12px; border: none; border-radius: 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.3s;">
+                    <div style="display: flex; background: white; border-radius: 20px; padding: 4px; margin-bottom: 16px; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0;">
+                        <button type="button" id="btnEditTypePengeluaran" onclick="setEditPageType('pengeluaran')" style="flex: 1; padding: 10px; border: none; border-radius: 16px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s;">
                             <i class="fa-solid fa-circle-minus"></i> Pengeluaran
                         </button>
-                        <button type="button" id="btnEditTypePemasukan" onclick="setEditPageType('pemasukan')" style="flex: 1; padding: 12px; border: none; border-radius: 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.3s;">
+                        <button type="button" id="btnEditTypePemasukan" onclick="setEditPageType('pemasukan')" style="flex: 1; padding: 10px; border: none; border-radius: 16px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s;">
                             <i class="fa-solid fa-circle-plus"></i> Pemasukan
                         </button>
                     </div>
@@ -363,55 +363,55 @@
                         <input type="hidden" id="editPageTxCategory" value="Lainnya">
 
                         <!-- Jumlah -->
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 8px;">Jumlah</label>
-                            <div style="background: white; border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0;">
-                                <span style="font-size: 18px; font-weight: 700; color: #1e293b;">Rp</span>
-                                <input type="text" id="editPageAmount" placeholder="0" style="border: none; width: 100%; font-size: 20px; font-weight: 700; color: #1e293b; outline: none; background: transparent;" oninput="formatEditPageAmount(this)">
+                        <div class="form-group" style="margin-bottom: 14px;">
+                            <label style="font-size: 11px; color: #64748b; font-weight: 600; display: block; margin-bottom: 6px;">Jumlah</label>
+                            <div style="background: white; border-radius: 14px; padding: 12px 14px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 16px; font-weight: 700; color: #1e293b;">Rp</span>
+                                <input type="text" id="editPageAmount" placeholder="0" style="border: none; width: 100%; font-size: 18px; font-weight: 700; color: #1e293b; outline: none; background: transparent;" oninput="formatEditPageAmount(this)">
                             </div>
                         </div>
 
                         <!-- Kategori Dropdown (Replaces Grid) -->
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 8px;">Kategori</label>
+                        <div class="form-group" style="margin-bottom: 14px;">
+                            <label style="font-size: 11px; color: #64748b; font-weight: 600; display: block; margin-bottom: 6px;">Kategori</label>
                             <div class="select-wrapper" style="position: relative;">
-                                <select id="editPageCategorySelect" style="width: 100%; padding: 14px 16px; border: 1.5px solid #e2e8f0; border-radius: 16px; font-size: 14px; color: #1e293b; background: white; outline: none; appearance: none; -webkit-appearance: none;">
+                                <select id="editPageCategorySelect" style="width: 100%; padding: 11px 14px; border: 1.5px solid #e2e8f0; border-radius: 14px; font-size: 13px; color: #1e293b; background: white; outline: none; appearance: none; -webkit-appearance: none;">
                                     <!-- Loaded dynamically via JS -->
                                 </select>
-                                <i class="fa-solid fa-chevron-down" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #64748b; pointer-events: none;"></i>
+                                <i class="fa-solid fa-chevron-down" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #64748b; pointer-events: none; font-size: 12px;"></i>
                             </div>
                         </div>
 
                         <!-- Date & Time Row -->
-                        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 14px;">
                             <!-- Tanggal -->
                             <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                                <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 8px;">Tanggal</label>
-                                <div style="background: white; border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0;">
-                                    <i class="fa-solid fa-calendar" style="color: #3b82f6;"></i>
-                                    <input type="date" id="editPageDate" style="border: none; width: 100%; font-size: 14px; color: #1e293b; outline: none; background: transparent; font-family: inherit;">
+                                <label style="font-size: 11px; color: #64748b; font-weight: 600; display: block; margin-bottom: 6px;">Tanggal</label>
+                                <div style="background: white; border-radius: 14px; padding: 10px 12px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0;">
+                                    <i class="fa-solid fa-calendar" style="color: #3b82f6; font-size: 13px;"></i>
+                                    <input type="date" id="editPageDate" style="border: none; width: 100%; font-size: 13px; color: #1e293b; outline: none; background: transparent; font-family: inherit;">
                                 </div>
                             </div>
                             <!-- Waktu -->
                             <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                                <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 8px;">Waktu</label>
-                                <div style="background: white; border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0;">
-                                    <i class="fa-solid fa-clock" style="color: #3b82f6;"></i>
-                                    <input type="time" id="editPageTime" style="border: none; width: 100%; font-size: 14px; color: #1e293b; outline: none; background: transparent; font-family: inherit;">
+                                <label style="font-size: 11px; color: #64748b; font-weight: 600; display: block; margin-bottom: 6px;">Waktu</label>
+                                <div style="background: white; border-radius: 14px; padding: 10px 12px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0;">
+                                    <i class="fa-solid fa-clock" style="color: #3b82f6; font-size: 13px;"></i>
+                                    <input type="time" id="editPageTime" style="border: none; width: 100%; font-size: 13px; color: #1e293b; outline: none; background: transparent; font-family: inherit;">
                                 </div>
                             </div>
                         </div>
 
                         <!-- Keterangan -->
-                        <div class="form-group" style="margin-bottom: 28px;">
-                            <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block; margin-bottom: 8px;">Keterangan (opsional)</label>
-                            <div style="background: white; border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0;">
-                                <input type="text" id="editPageDescription" placeholder="Tulis keterangan di sini..." style="border: none; width: 100%; font-size: 14px; color: #1e293b; outline: none; background: transparent;">
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label style="font-size: 11px; color: #64748b; font-weight: 600; display: block; margin-bottom: 6px;">Keterangan (opsional)</label>
+                            <div style="background: white; border-radius: 14px; padding: 11px 14px; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0;">
+                                <input type="text" id="editPageDescription" placeholder="Tulis keterangan di sini..." style="border: none; width: 100%; font-size: 13px; color: #1e293b; outline: none; background: transparent;">
                             </div>
                         </div>
 
                         <!-- Bottom Button -->
-                        <button type="button" id="editPageSubmitBtn" onclick="submitEditForm()" class="btn-primary" style="background: #3b82f6; color: white; width: 100%; border-radius: 16px; font-weight: 600; padding: 16px 0; font-size: 15px; border: none; cursor: pointer; box-shadow: var(--shadow-sm); display: block;">
+                        <button type="button" id="editPageSubmitBtn" onclick="submitEditForm()" class="btn-primary" style="background: #3b82f6; color: white; width: 100%; border-radius: 14px; font-weight: 600; padding: 14px 0; font-size: 14px; border: none; cursor: pointer; box-shadow: var(--shadow-sm); display: block;">
                             Simpan Perubahan
                         </button>
                     </form>
@@ -655,21 +655,20 @@
                 <input type="hidden" id="nominal" name="nominal" value="0">
                 <input type="hidden" id="editingId" name="editingId" value="">
                 
-                <div class="scrollable-middle">
-                    <!-- Category Dropdown (Replaces old chips slider) -->
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <label style="font-size: 11px; color: var(--clr-text-muted); display: block; margin-bottom: 8px; font-weight: 600;">Kategori</label>
-                        <div class="select-wrapper" style="position: relative;">
-                            <select id="kategori" name="kategori" required style="width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 14px; color: var(--clr-text-main); background: white; outline: none; appearance: none; -webkit-appearance: none;">
+                <div class="numpad-inputs-compact">
+                    <!-- Category Dropdown -->
+                    <div class="form-group-compact">
+                        <div class="select-wrapper">
+                            <select id="kategori" name="kategori" required>
                                 <!-- Loaded dynamically via JS -->
                             </select>
-                            <i class="fa-solid fa-chevron-down" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--clr-text-muted); pointer-events: none;"></i>
+                            <i class="fa-solid fa-chevron-down select-chevron"></i>
                         </div>
                     </div>
 
                     <!-- Text Input Keterangan -->
-                    <div class="form-group-numpad">
-                        <div class="input-with-icon">
+                    <div class="form-group-compact">
+                        <div class="input-with-icon-compact">
                             <i class="fa-solid fa-bars"></i>
                             <input type="text" id="deskripsi" name="deskripsi" autocomplete="off" placeholder="Keterangan (opsional)">
                         </div>

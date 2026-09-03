@@ -552,7 +552,7 @@ body {
     max-width: 480px;
     height: 100vh;
     background: rgba(0,0,0,0.5);
-    z-index: 200;
+    z-index: 1100; /* Prioritas di atas bottom-nav (999) dan FAB (1000) */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
@@ -661,38 +661,41 @@ body {
 
 .numpad-header {
     background: #F8F9FA;
-    padding: 20px 24px;
+    padding: 12px 16px 8px 16px;
     position: relative;
     text-align: center;
     border-bottom: 1px solid var(--clr-border);
+    flex-shrink: 0;
 }
 
 .numpad-header .close-modal {
     position: absolute;
-    right: 24px;
-    top: 20px;
+    right: 16px;
+    top: 12px;
 }
 
 .type-selector-numpad {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     background: #E5E7EB;
     border-radius: var(--radius-lg);
-    padding: 4px;
-    margin: 0 auto 20px auto;
+    padding: 3px;
+    margin: 0 auto 10px auto;
     width: fit-content;
 }
 
 .nominal-label {
-    font-size: 14px;
+    font-size: 12px;
     color: var(--clr-text-muted);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .amount-display {
-    font-size: 40px;
+    font-size: 28px;
     font-weight: 700;
-    letter-spacing: -1px;
+    letter-spacing: -0.5px;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .text-red { color: var(--clr-expense) !important; }
@@ -1227,45 +1230,7 @@ body {
     margin-top: auto;
 }
 
-/* === OVERFLOW FIX FOR NUMPAD UI === */
-.modal-content.bottom-sheet.numpad-ui {
-    max-height: 95vh !important;
-    height: 95vh;
-    padding-bottom: 20px !important;
-    display: flex;
-    flex-direction: column;
-}
 
-#transactionForm.numpad-form {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    overflow: hidden;
-}
-
-.scrollable-middle {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-    padding-bottom: 20px;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-.scrollable-middle::-webkit-scrollbar {
-    display: none;
-}
-
-.numpad-grid {
-    flex-shrink: 0;
-    margin-top: auto;
-    padding-bottom: 15px;
-}
-
-.btn-primary.w-100 {
-    flex-shrink: 0;
-    margin-top: 10px;
-    margin-bottom: 25px;
-}
 
 /* Report Specific CSS */
 .time-filter-container {
@@ -1407,11 +1372,12 @@ body {
 
 /* === OVERFLOW FIX FOR NUMPAD UI === */
 .modal-content.bottom-sheet.numpad-ui {
-    max-height: 95vh !important;
-    height: 95vh;
-    padding-bottom: 20px !important;
+    max-height: 100dvh !important;
+    height: 100dvh !important;
+    padding-bottom: env(safe-area-inset-bottom, 16px) !important;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
 }
 
 #transactionForm.numpad-form {
@@ -1419,24 +1385,129 @@ body {
     flex-direction: column;
     flex: 1;
     overflow: hidden;
+    padding: 16px 20px !important;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-sizing: border-box;
 }
 
-.scrollable-middle {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 10px;
-}
-
-.numpad-grid {
+/* Compact input row for Kategori & Keterangan */
+.numpad-inputs-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
     flex-shrink: 0;
-    margin-top: auto;
-    padding-bottom: 15px;
+}
+
+.form-group-compact {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.form-group-compact .select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.form-group-compact select {
+    width: 100%;
+    padding: 10px 14px;
+    padding-right: 36px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--clr-text-main);
+    background: #f8fafc;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.select-chevron {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--clr-text-muted);
+    pointer-events: none;
+    font-size: 12px;
+}
+
+.input-with-icon-compact {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 2px 14px;
+    box-sizing: border-box;
+}
+
+.input-with-icon-compact i {
+    color: var(--clr-text-muted);
+    font-size: 13px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.input-with-icon-compact input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--clr-text-main);
+    font-family: inherit;
+}
+
+/* Numpad Grid - Compact Ergonomic */
+.numpad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px !important;
+    margin-top: auto !important;
+    margin-bottom: 12px !important;
+    flex-shrink: 0 !important;
+}
+
+.numpad-btn {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 0 !important;
+    font-size: 20px !important;
+    font-weight: 600;
+    color: var(--clr-text-main);
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+}
+
+.numpad-btn:active {
+    background: #e2e8f0;
 }
 
 .modal-actions {
-    flex-shrink: 0;
-    margin-top: 10px;
-    margin-bottom: 25px;
+    flex-shrink: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-save-numpad {
+    padding: 13px 0 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
 }
 
 /* === STYLING UNTUK TOMBOL TIPE PENGELUARAN/PEMASUKAN DI MODAL NUMPAD === */
@@ -1449,12 +1520,12 @@ body {
 }
 .type-selector-numpad .type-btn {
     display: inline-block;
-    padding: 8px 24px;
+    padding: 6px 18px;
     border-radius: 20px;
-    font-size: 13px;
-    font-weight: bold;
+    font-size: 12px;
+    font-weight: 600;
     color: #64748b;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-align: center;
 }
 .type-selector-numpad .type-radio input:checked + .type-btn.pengeluaran-btn {
@@ -1467,3 +1538,70 @@ body {
     color: var(--clr-light-green, #3b82f6);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+
+/* === RESPONSIVE MEDIA QUERIES UNTUK HP KECIL (360px atau layar pendek) === */
+@media (max-width: 380px) {
+    .numpad-btn {
+        padding: 10px 0 !important;
+        font-size: 18px !important;
+        min-height: 40px;
+    }
+    .amount-display {
+        font-size: 26px;
+    }
+    .numpad-header {
+        padding: 10px 14px 6px 14px;
+    }
+    .type-selector-numpad .type-btn {
+        padding: 5px 14px;
+        font-size: 11px;
+    }
+    #transactionForm.numpad-form {
+        padding: 12px 14px !important;
+    }
+    .form-group-compact select,
+    .input-with-icon-compact input {
+        font-size: 12px;
+    }
+    .edit-page-content {
+        padding: 12px 14px 30px 14px !important;
+    }
+}
+
+@media (max-height: 650px) {
+    .numpad-header {
+        padding: 8px 12px 4px 12px;
+    }
+    .type-selector-numpad {
+        margin-bottom: 6px;
+    }
+    .amount-display {
+        font-size: 24px;
+    }
+    .numpad-inputs-compact {
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+    .form-group-compact select {
+        padding: 8px 12px;
+    }
+    .input-with-icon-compact {
+        padding: 0 12px;
+    }
+    .input-with-icon-compact input {
+        padding: 6px 0;
+    }
+    .numpad-grid {
+        gap: 6px !important;
+        margin-bottom: 8px !important;
+    }
+    .numpad-btn {
+        padding: 8px 0 !important;
+        min-height: 38px;
+        font-size: 18px !important;
+    }
+    .btn-save-numpad {
+        padding: 11px 0 !important;
+    }
+}
+
