@@ -28,10 +28,11 @@
  }
  const modal=document.getElementById('transactionModal');
  const keyboard=document.getElementById('keyboardAmount');let opener=null;let wasOpen=false;
- keyboard.addEventListener('input',()=>{numpadValue=keyboard.value.replace(/\D/g,'').slice(0,15)||'0';keyboard.value=numpadValue;updateAmountDisplay();});
+ const syncKeyboardAmount = () => {const value=document.getElementById('nominal').value;keyboard.value=Number(value)>0?value:'';};
+ keyboard.addEventListener('input',()=>{const raw=keyboard.value;const caret=keyboard.selectionStart;const digits=raw.replace(/\D/g,'').replace(/^0+(?=\d)/,'').slice(0,15);if(raw!==digits){keyboard.value=digits;const position=Math.max(0,(caret??raw.length)-(raw.length-digits.length));keyboard.setSelectionRange(position,position);}numpadValue=digits||'0';updateAmountDisplay();});
  new MutationObserver(()=>{
   const open=modal.classList.contains('active');
-  if(open&&!wasOpen){opener=document.activeElement;keyboard.value=document.getElementById('nominal').value;modal.inert=false;requestAnimationFrame(()=>{(matchMedia('(min-width:992px)').matches?keyboard:modal.querySelector('.close-modal')).focus();});}
+  if(open&&!wasOpen){opener=document.activeElement;syncKeyboardAmount();modal.inert=false;requestAnimationFrame(()=>{(matchMedia('(min-width:992px)').matches?keyboard:modal.querySelector('.close-modal')).focus();});}
   if(!open&&wasOpen){modal.inert=true;if(opener?.isConnected)opener.focus();}
   wasOpen=open;document.body.style.overflow=open?'hidden':'';
  }).observe(modal,{attributes:true,attributeFilter:['class']});modal.inert=true;
@@ -44,5 +45,5 @@
    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   }
  });
- matchMedia('(min-width:992px)').addEventListener('change',()=>{keyboard.value=document.getElementById('nominal').value;});
+ matchMedia('(min-width:992px)').addEventListener('change',()=>{syncKeyboardAmount();});
 })();
