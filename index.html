@@ -2,13 +2,28 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Money Tracker</title>
+    <link rel="stylesheet" href="vendor/bootstrap-grid.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="adaptive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
+    <div class="app-container container-fluid">
+        <aside id="desktopSidebar" class="desktop-sidebar" aria-label="Navigasi utama" hidden>
+            <a class="brand" href="#" data-view="dashboard"><i class="fa-solid fa-wallet" aria-hidden="true"></i> Money Tracker</a>
+            <p class="sidebar-caption">Keuangan pribadi</p>
+            <nav class="sidebar-links">
+                <button type="button" data-view="dashboard"><i class="fa-solid fa-house"></i> Ringkasan</button>
+                <button type="button" data-view="riwayat_lengkap"><i class="fa-solid fa-list"></i> Transaksi</button>
+                <button type="button" data-view="laporan"><i class="fa-solid fa-chart-pie"></i> Laporan</button>
+                <button type="button" data-view="kategori_view"><i class="fa-solid fa-tags"></i> Kategori</button>
+                <button type="button" data-view="notes_view"><i class="fa-solid fa-note-sticky"></i> Catatan</button>
+                <button type="button" data-view="pengaturan"><i class="fa-solid fa-gear"></i> Pengaturan</button>
+            </nav>
+            <div class="sidebar-foot">Catat dengan teratur.<br>Kelola dengan lebih jelas.</div>
+        </aside>
 
         <!-- View: Login/Register -->
         <div id="authScreen" class="auth-screen">
@@ -28,16 +43,20 @@
 
         <!-- Main Content (hidden until logged in) -->
         <main class="main-content" id="mainContent" style="display:none;">
+            <header class="workspace-header d-none d-lg-flex">
+                <div><p class="workspace-kicker">Ruang keuanganmu</p><h1 id="workspaceTitle">Ringkasan</h1></div>
+                <button type="button" class="btn-primary desktop-add" onclick="openTransactionModal()"><i class="fa-solid fa-plus" aria-hidden="true"></i> Tambah Transaksi</button>
+            </header>
             <!-- View: Dashboard -->
-            <div id="dashboard" class="view active">
+            <div id="dashboard" class="view active row g-4">
                 
                 <!-- TOP SECTION: Green Background -->
-                <section class="top-section">
+                <section class="top-section col-12 col-xl-4">
                     
 
                     <div class="balance-container">
-                        <p class="balance-label">Your Wallet Balance</p>
-                        <h1 id="totalSaldo" class="balance-amount">Rp 0</h1>
+                        <p class="balance-label">Saldo Tercatat</p>
+                        <h1 id="totalSaldo" class="balance-amount">Rp 0</h1><p class="balance-period">Akumulasi seluruh transaksi</p>
                     </div>
 
                     <div class="header-stats">
@@ -59,7 +78,7 @@
                 </section>
 
                 <!-- BOTTOM SECTION: White Background -->
-                <section class="bottom-section">
+                <section class="bottom-section col-12 col-xl-8">
                     
                     <!-- QUICK UTILITY SHORTCUTS (Replaces old Quick Actions) -->
                     <div class="quick-actions">
@@ -447,7 +466,7 @@
                         </div>
                         <div class="summary-card text-blue">
                             <div class="sc-details">
-                                <span>Net Income</span>
+                                <span>Selisih Bersih</span>
                                 <h3 id="summaryTransaksi">Rp 0</h3>
                             </div>
                         </div>
@@ -588,12 +607,12 @@
         <nav class="bottom-nav" id="bottomNav" style="display:none;">
             <div class="nav-item active" data-target="dashboard">
                 <i class="fa-solid fa-house"></i>
-                <span>Home</span>
+                <span>Beranda</span>
             </div>
             
             <div class="nav-item" data-target="laporan">
                 <i class="fa-solid fa-chart-pie"></i>
-                <span>Report</span>
+                <span>Laporan</span>
             </div>
             
             <!-- Spacer Tengah untuk FAB -->
@@ -601,12 +620,12 @@
             
             <div class="nav-item" data-target="kategori_view">
                 <i class="fa-solid fa-tags"></i>
-                <span>Category</span>
+                <span>Kategori</span>
             </div>
             
             <div class="nav-item" data-target="pengaturan">
                 <i class="fa-solid fa-gear"></i>
-                <span>Settings</span>
+                <span>Pengaturan</span>
             </div>
             
             <!-- FAB Raksasa Melayang -->
@@ -626,11 +645,11 @@
     </div>
 
     <!-- MODAL: Transaction Form -->
-    <div id="transactionModal" class="modal-overlay">
+    <div id="transactionModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Tambah transaksi" tabindex="-1">
         <div class="modal-content bottom-sheet numpad-ui">
             <!-- Header & Amount Display -->
             <div class="numpad-header">
-                <button class="close-modal" type="button" onclick="closeTransactionModal()"><i class="fa-solid fa-xmark"></i></button>
+                <button class="close-modal" aria-label="Tutup form transaksi" type="button" onclick="closeTransactionModal()"><i class="fa-solid fa-xmark"></i></button>
                 <div class="type-selector-numpad">
                     <label class="type-radio">
                         <input type="radio" name="tipe_numpad" value="pengeluaran" checked onchange="updateFormTypeNumpad('pengeluaran')">
@@ -648,6 +667,7 @@
                 </select>
 
                 <p class="nominal-label">Nominal</p>
+                <div class="desktop-amount d-none d-lg-block"><label for="keyboardAmount">Nominal (Rp)</label><input id="keyboardAmount" type="text" inputmode="numeric" autocomplete="off" placeholder="0"></div>
                 <h1 id="amountDisplay" class="amount-display text-red">Rp 0</h1>
             </div>
             
@@ -659,7 +679,7 @@
                     <!-- Category Dropdown -->
                     <div class="form-group-compact">
                         <div class="select-wrapper">
-                            <select id="kategori" name="kategori" required>
+                            <label for="kategori" class="field-label">Kategori</label><select id="kategori" name="kategori" required>
                                 <!-- Loaded dynamically via JS -->
                             </select>
                             <i class="fa-solid fa-chevron-down select-chevron"></i>
@@ -670,7 +690,7 @@
                     <div class="form-group-compact">
                         <div class="input-with-icon-compact">
                             <i class="fa-solid fa-bars"></i>
-                            <input type="text" id="deskripsi" name="deskripsi" autocomplete="off" placeholder="Keterangan (opsional)">
+                            <input aria-label="Keterangan (opsional)" type="text" id="deskripsi" name="deskripsi" autocomplete="off" placeholder="Keterangan (opsional)">
                         </div>
                     </div>
                 </div>
@@ -688,7 +708,7 @@
                     <button type="button" class="numpad-btn" onclick="numpadPress('9')">9</button>
                     <button type="button" class="numpad-btn" onclick="numpadPress('000')">000</button>
                     <button type="button" class="numpad-btn" onclick="numpadPress('0')">0</button>
-                    <button type="button" class="numpad-btn numpad-del" onclick="numpadPress('del')"><i class="fa-solid fa-delete-left"></i></button>
+                    <button type="button" aria-label="Hapus digit terakhir" class="numpad-btn numpad-del" onclick="numpadPress('del')"><i class="fa-solid fa-delete-left"></i></button>
                 </div>
 
                 <!-- Action Button -->
@@ -705,6 +725,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="app.js"></script>
+    <script src="adaptive.js" defer></script>
     <script>
         function openNotesView() {
             document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));

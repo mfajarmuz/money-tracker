@@ -336,9 +336,11 @@ async function initApp() {
             if (tableBody) {
                 const tr = document.createElement('div');
                 tr.setAttribute('data-tipe', t.tipe);
+                tr.className = 'tx-row';
                 tr.style.cssText = 'display:flex;align-items:center;padding:16px;background:#FFF;border-radius:16px;box-shadow:0 2px 5px rgba(0,0,0,0.05);margin-bottom:12px;position:relative;';
 
                 const iconWrapper = document.createElement('div');
+                iconWrapper.className = 'tx-icon';
                 iconWrapper.innerHTML = tTipe === 'pemasukan'
                     ? '<i class="fa-solid fa-arrow-down" style="color:#10B981"></i>'
                     : '<i class="fa-solid fa-arrow-up" style="color:#EF4444"></i>';
@@ -349,17 +351,21 @@ async function initApp() {
                 const formattedTime = txDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
                 const textWrapper = document.createElement('div');
+                textWrapper.className = 'tx-copy';
                 textWrapper.style.flex = '1';
                 const tdDesc = document.createElement('div');
+                tdDesc.className = 'tx-description';
                 tdDesc.textContent = t.deskripsi;
                 tdDesc.style.cssText = 'font-weight:600;font-size:14px;color:#1A1A1A;';
                 const tdCat = document.createElement('div');
+                tdCat.className = 'tx-meta';
                 tdCat.textContent = (t.kategori || 'Lainnya') + ' \u2022 ' + formattedDate + ' ' + formattedTime;
                 tdCat.style.cssText = 'font-size:11px;color:#6B7280;margin-top:2px;';
                 textWrapper.append(tdDesc, tdCat);
 
                 const tdNom = document.createElement('div');
-                tdNom.textContent = formatter.format(t.nominal);
+                tdNom.className = 'tx-amount';
+                tdNom.textContent = (tTipe === 'pemasukan' ? '+ ' : '− ') + formatter.format(t.nominal);
                 tdNom.style.cssText = 'font-weight:700;font-size:15px;color:' + (tTipe === 'pemasukan' ? '#10B981' : '#EF4444') + ';margin-right:12px;';
 
                 // Make row clickable to open details page
@@ -418,13 +424,13 @@ async function initApp() {
         sorted.forEach(t => {
             const tr = document.createElement('div');
             tr.style.cssText = 'display:flex;align-items:center;padding:12px 16px;background:#FFF;border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,0.03);margin-bottom:8px;';
-            const icon = document.createElement('div');
+            const icon = document.createElement('div'); icon.className = 'tx-icon';
             icon.innerHTML = '<i class="fa-solid fa-arrow-up" style="color:#EF4444"></i>';
             icon.style.cssText = 'width:36px;height:36px;border-radius:50%;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;margin-right:12px;';
             const text = document.createElement('div');
             text.style.flex = '1';
-            const d = document.createElement('div'); d.textContent = t.deskripsi; d.style.cssText = 'font-weight:600;font-size:13px;color:#1A1A1A;';
-            const c = document.createElement('div'); c.textContent = t.kategori || 'Lainnya'; c.style.cssText = 'font-size:11px;color:#6B7280;';
+            const d = document.createElement('div'); d.className = 'tx-description'; d.textContent = t.deskripsi; d.style.cssText = 'font-weight:600;font-size:13px;color:#1A1A1A;';
+            const c = document.createElement('div'); c.className = 'tx-meta'; c.textContent = t.kategori || 'Lainnya'; c.style.cssText = 'font-size:11px;color:#6B7280;';
             text.append(d, c);
             const n = document.createElement('div'); n.textContent = formatter.format(t.nominal); n.style.cssText = 'font-weight:700;font-size:14px;color:#EF4444;';
             tr.append(icon, text, n);
@@ -959,25 +965,26 @@ window.filterHistoryList = () => {
 
     filtered.forEach(t => {
         const tr = document.createElement('div');
+        tr.className = 'tx-row';
         const tipeIcon = String(t.tipe).toLowerCase();
         tr.style.cssText = 'display:flex;align-items:center;padding:16px;background:#FFF;border-radius:16px;box-shadow:0 2px 5px rgba(0,0,0,0.05);margin-bottom:12px;';
 
-        const icon = document.createElement('div');
+        const icon = document.createElement('div'); icon.className = 'tx-icon';
         icon.innerHTML = tipeIcon === 'pemasukan'
             ? '<i class="fa-solid fa-arrow-down" style="color:#10B981"></i>'
             : '<i class="fa-solid fa-arrow-up" style="color:#EF4444"></i>';
         icon.style.cssText = 'width:40px;height:40px;border-radius:50%;background:' + (tipeIcon === 'pemasukan' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)') + ';display:flex;align-items:center;justify-content:center;margin-right:12px;';
 
-        const details = document.createElement('div'); details.style.flex = '1';
-        const d = document.createElement('div'); d.textContent = t.deskripsi; d.style.cssText = 'font-weight:600;font-size:14px;color:#1A1A1A;';
+        const details = document.createElement('div'); details.className = 'tx-copy'; details.style.flex = '1';
+        const d = document.createElement('div'); d.className = 'tx-description'; d.textContent = t.deskripsi; d.style.cssText = 'font-weight:600;font-size:14px;color:#1A1A1A;';
         const txDate = new Date(t.created_at);
-        const c = document.createElement('div');
+        const c = document.createElement('div'); c.className = 'tx-meta';
         c.textContent = (t.kategori || 'Lainnya') + ' \u2022 ' + txDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + txDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         c.style.cssText = 'font-size:11px;color:#6B7280;margin-top:2px;';
         details.append(d, c);
 
-        const nom = document.createElement('div');
-        nom.textContent = fmt.format(t.nominal);
+        const nom = document.createElement('div'); nom.className = 'tx-amount';
+        nom.textContent = (tipeIcon === 'pemasukan' ? '+ ' : '− ') + fmt.format(t.nominal);
         nom.style.cssText = 'font-weight:700;font-size:15px;color:' + (tipeIcon === 'pemasukan' ? '#10B981' : '#EF4444') + ';margin-right:12px;';
 
         // Make row clickable to open details page
